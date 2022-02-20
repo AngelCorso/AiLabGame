@@ -5,6 +5,7 @@ from tkinter import *
 from tkinter import messagebox as ms
 import time
 from functools import partial
+import tkinter
 from urllib.parse import _NetlocResultMixinBase
 from PIL import Image, ImageTk
 import os
@@ -126,16 +127,13 @@ def OpenGamemodeWindow():
     HistoryButton = Button(GamemodeWindow, text="Modo historia", command=OpenLoginWindow)
     HistoryButton.place(relx=0.5,rely=0.6,anchor=CENTER)
 
-def OpenDetailsWindow(character,imagen):
+def OpenDetailsWindow(character):
     
-    try:
-        CharacterSelectionWindow.destroy()
-    except:
-        pass
     
     global DetailsWindow
-    DetailsWindow = Tk() # instanciar
-    DetailsWindow.geometry("400x300") # alterar el tamanio
+    # DetailsWindow = Tk() # instanciar
+    DetailsWindow = Toplevel(CharacterSelectionWindow) # instanciar
+    DetailsWindow.geometry("400x400") # alterar el tamanio
     DetailsWindow.title("Juego Loco 3mil8mil") # editar el titulo
     DetailsWindow.config(bg="#C1B9B9") # editar el background
     DetailsWindow.iconbitmap("VamohIcon.ico") # editar el icono de la aplicacion
@@ -146,21 +144,45 @@ def OpenDetailsWindow(character,imagen):
     im1 = ImageTk.PhotoImage(Im_1)
 
     #grid de 11x7
-    #Button(DetailsWindow,image=im1).grid(row=0,column=0, columnspan = 7)
-    Button(DetailsWindow,image=im1,command=OpenLoginWindow).grid(row=0,column=0) #ipadx para acomodar tamaños
-    #Label(DetailsWindow,text="Aquarder: Tipo Agua").grid(row=0,column=0, columnspan = 7)
-    Label(DetailsWindow,text="Aquarder: Tipo Agua").grid(row=1,column=0, columnspan = 7)
-    Label(DetailsWindow,text="Aquarder: Tipo Agua").grid(row=2,column=0, columnspan = 7)
-    Label(DetailsWindow,text="Aquarder: Tipo Agua").grid(row=3,column=0, columnspan = 7)
-    Label(DetailsWindow,text="Aquarder: Tipo Agua").grid(row=4,column=0, columnspan = 7)
+    attacksNames = list(character.attacks)
+    attacks = character.attacks
 
-    Label(DetailsWindow,text="Habilidad|").grid(row=5,column=0)
-    Label(DetailsWindow,text="norm|").grid(row=5,column=1)
-    Label(DetailsWindow,text="At vent|").grid(row=5,column=2)
-    Label(DetailsWindow,text="At desv|").grid(row=5,column=3)
-    Label(DetailsWindow,text="pot norm|").grid(row=5,column=4)
-    Label(DetailsWindow,text="pot vent|").grid(row=5,column=5)
-    Label(DetailsWindow,text="pot desv|").grid(row=5,column=6)
+    advantageText = "Ventaja con: " + ", ".join(character.advantage)
+    disadvantageText = "Desventaja con: " + ", ".join(character.disadvantage)
+    normalText = "Normal con: " + ", ".join(character.normal)
+
+    Label(DetailsWindow,image=im1,bg="#C1B9B9").grid(row=0,column=0, columnspan = 7)
+    Label(DetailsWindow,text=character.name + ": Tipo " + character.type,bg="#C1B9B9").grid(row=1,column=0, columnspan = 7)
+    Label(DetailsWindow,text=advantageText,bg="#C1B9B9").grid(row=2,column=0, columnspan = 7)
+    Label(DetailsWindow,text=disadvantageText,bg="#C1B9B9").grid(row=3,column=0, columnspan = 7)
+    Label(DetailsWindow,text=normalText,bg="#C1B9B9").grid(row=4,column=0, columnspan = 7)
+
+    Label(DetailsWindow,text="Habilidad",bg="#C1B9B9").grid(row=5,column=0,sticky=W)
+    Label(DetailsWindow,text="norm",bg="#C1B9B9").grid(row=5,column=1,sticky=W)
+    Label(DetailsWindow,text="At vent",bg="#C1B9B9").grid(row=5,column=2,sticky=W)
+    Label(DetailsWindow,text="At desv",bg="#C1B9B9").grid(row=5,column=3,sticky=W)
+    Label(DetailsWindow,text="pot norm",bg="#C1B9B9").grid(row=5,column=4,sticky=W)
+    Label(DetailsWindow,text="pot vent",bg="#C1B9B9").grid(row=5,column=5,sticky=W)
+    Label(DetailsWindow,text="pot desv",bg="#C1B9B9").grid(row=5,column=6,sticky=W)
+
+    # Nombres de ataques
+    Label(DetailsWindow,text=attacksNames[0],bg="#C1B9B9").grid(row=6,column=0,sticky=W)
+    Label(DetailsWindow,text=attacksNames[1],bg="#C1B9B9").grid(row=7,column=0,sticky=W)
+    Label(DetailsWindow,text=attacksNames[2],bg="#C1B9B9").grid(row=8,column=0,sticky=W)
+    Label(DetailsWindow,text=attacksNames[3],bg="#C1B9B9").grid(row=9,column=0,sticky=W)
+
+    #Daños de ataques
+    Label(DetailsWindow,text=str(attacks[attacksNames[0]][0]) + "pt",bg="#C1B9B9").grid(row=6,column=1)
+    Label(DetailsWindow,text=str(attacks[attacksNames[0]][1]) + "pt",bg="#C1B9B9").grid(row=6,column=2)
+    Label(DetailsWindow,text=str(attacks[attacksNames[0]][2]) + "pt",bg="#C1B9B9").grid(row=6,column=3)
+    Label(DetailsWindow,text=str(attacks[attacksNames[0]][3]) + "pt",bg="#C1B9B9").grid(row=6,column=4)
+    Label(DetailsWindow,text=str(attacks[attacksNames[0]][4]) + "pt",bg="#C1B9B9").grid(row=6,column=5)
+    Label(DetailsWindow,text=str(attacks[attacksNames[0]][5]) + "pt",bg="#C1B9B9").grid(row=6,column=6)
+
+    Label(DetailsWindow,text=str(attacks[attacksNames[1]]) + "pt",bg="#C1B9B9").grid(row=7,column=1)
+    Label(DetailsWindow,text=str(attacks[attacksNames[2]]) + "pt",bg="#C1B9B9").grid(row=8,column=1)
+
+    Label(DetailsWindow,text="Potenciador de campo, 1 vez cada 3 turnos\n tiene una duración de 2 turnos",bg="#C1B9B9").grid(row=9,column=1, columnspan=6)
     
     DetailsWindow.mainloop()
 
@@ -250,8 +272,8 @@ def OpenCharacterSelectionWindow():
     Character1Button = Button(CharacterSelectionWindow,image=im1,command=OpenLoginWindow).grid(row=1,column=0) #ipadx para acomodar tamaños
     Character2Button = Button(CharacterSelectionWindow,image=im2,command=OpenLoginWindow).grid(row=1,column=1)
     Character3Button = Button(CharacterSelectionWindow,image=im3,command=OpenLoginWindow).grid(row=1,column=2)
-    Details1Button = Button(CharacterSelectionWindow,text="Detalle",command=partial(OpenDetailsWindow,characters[0],im1)).grid(row=2,column=0)
-    Details2Button = Button(CharacterSelectionWindow,text="Detalle",command=partial(OpenDetailsWindow,characters[1])).grid(row=2,column=1)
+    Details1Button = Button(CharacterSelectionWindow,text="Detalle",command=partial(OpenDetailsWindow,characters[0])).grid(row=2,column=0)
+    Details2Button = Button(CharacterSelectionWindow,text="Detalles",command=partial(OpenDetailsWindow,characters[1])).grid(row=2,column=1)
     Details3Button = Button(CharacterSelectionWindow,text="Detalle",command=partial(OpenDetailsWindow,characters[2])).grid(row=2,column=2)
 
     Character4Label = Label(CharacterSelectionWindow,text="Mousebug",bg="#C1B9B9").grid(row=3,column=0)
@@ -312,8 +334,6 @@ def RegisterValidation(UsernameTextBox,PasswordTextBox,RePasswordTextBox):
     with archivo:
         escritor=csv.writer(archivo)
         escritor.writerows(datos)
-
-    
     
 def LoginValidation(username, password):
     usernamePath = username.get() + ".csv"

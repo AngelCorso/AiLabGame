@@ -1,11 +1,14 @@
 class Character:
-    def __init__(self,name,HP,type,powerUp,imagepath,attacks):
+    def __init__(self,name,HP,type,powerUp,imagepath,attacks,advantage,disadvantage,normal):
         self.name = name
         self.HP = HP
         self.type = type
         self.attacks = attacks
         self.powerUp = powerUp
         self.imagepath=imagepath
+        self.advantage = advantage
+        self.disadvantage = disadvantage
+        self.normal = normal
 
     def attack(self,attackedCharacter,attackIndex):
         # Si el ataque es el primero
@@ -47,7 +50,7 @@ class Character:
             return True
         elif self.type == "Escarabajo" and (enemyType == "Planta" or enemyType == "Roca"):
             return True
-        elif self.type == "Planta" and (enemyType == "Agua" or enemyType == "Electrico"):
+        elif self.type == "Planta" and (enemyType == "Agua" or enemyType == "Eléctrico" or enemyType == "Roca"):
             return True
         elif self.type == "Roca" and (enemyType == "Fuego" or enemyType == "Electrico"):
             return True
@@ -72,14 +75,15 @@ class Character:
 
 def initCharacters():
     characters = [
-    Character("Aquarder",25,"Agua",False,"images/aquarder.png",{"Aqua-jet":[3,5,2,5,7,4],"Cola férrea":2,"Cabezazo":2,"Lluvia":None}),
-    Character("Firesor",25,"Fuego",False,"images/firesor.png",{"Llamarada":[3,5,2,5,7,4],"Embestida":2,"Mordisco":2,"Día soleado":None}),
-    Character("Electder",25,"Eléctrico",False,"images/electder.png",{"Trueno":[3,5,2,5,7,4],"Arañazo":3,"Mordisco":3,"Campo magnético":None}),
-    Character("Mousebug",25,"Escarabajo",False,"images/mousegbug.png",{"Picotazo":[3,5,2,5,7,4],"Embestida":2,"Cabezazo":2,"Esporas":None}),
-    Character("Splant",25,"Planta",False,"images/splant.png",{"Hoja navaja":[3,5,2,5,7,4],"Mordisco":2,"Cabezazo":2,"Rayo solar":None}),
-    Character("Rockdog",25,"Roca",False,"images/rockdog.png",{"Roca afilado":[3,5,2,5,7,4],"Velocidad":2,"Cola ferrea":2,"Campo rocoso":None})
+    Character("Aquarder",25,"Agua",False,"images/aquarder.png",{"Aqua-jet":[3,5,2,5,7,4],"Cola férrea":2,"Cabezazo":2,"Lluvia":None},["Roca","Fuego"],["Eléctrico","Planta"],["Agua","Escarabajo"]),
+    Character("Electder",25,"Eléctrico",False,"images/electder.png",{"Trueno":[3,5,2,5,7,4],"Arañazo":3,"Mordisco":3,"Campo magnético":None},["Agua","Escarabajo"],["Roca","Planta"],["Eléctrico","Fuego"]),
+    Character("Firesor",25,"Fuego",False,"images/firesor.png",{"Llamarada":[3,5,2,5,7,4],"Embestida":2,"Mordisco":2,"Día soleado":None},["Planta","Escarabajo"],["Agua","Roca"],["Eléctrico","Fuego"]),
+    Character("Mousebug",25,"Escarabajo",False,"images/mousebug.png",{"Picotazo":[3,5,2,5,7,4],"Embestida":2,"Cabezazo":2,"Esporas":None},["Planta","Roca"],["Fuego","Electrico"],["Escarabajo","Agua"]),
+    Character("Splant",25,"Planta",False,"images/splant.png",{"Hoja navaja":[3,5,2,5,7,4],"Mordisco":2,"Cabezazo":2,"Rayo solar":None},["Roca","Agua","Eléctrico"],["Fuego","Escarabajo"],["Planta"]),
+    Character("Rockdog",25,"Roca",False,"images/rockdog.png",{"Roca afilado":[3,5,2,5,7,4],"Velocidad":2,"Cola ferrea":2,"Campo rocoso":None},["Fuego","Electrico"],["Agua","Planta"],["Roca","Escarabajo"])
     ]
     return characters
 
 
 directory = {"Roca afilado":[3,5,2,5,7,4],"Velocidad":2,"Cola ferrea":2,"Campo rocoso":None}
+print(["hola", "mamas"])
