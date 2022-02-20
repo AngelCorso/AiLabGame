@@ -18,7 +18,7 @@ while (Ingresar == "Y"):
     else:
         print("Datos incorrectos")
     Ingresar = input("Desea ingresar datos? Y /N ")
-                             
+
 archivo=open("db.csv","w")
 with archivo:
     escritor=csv.writer(archivo)
