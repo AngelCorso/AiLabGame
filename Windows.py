@@ -1,6 +1,10 @@
 #Based on practica_funciones_grafico.py
 # imports
+from cgitb import text
 import csv
+from fileinput import close
+import random
+import select
 from tkinter import *
 from tkinter import messagebox as ms
 import time
@@ -14,6 +18,44 @@ from Class import *
 
 #hacer funcion que elimine todas las ventanas abiertas, asi no estar checando el flujo, con trys y excepts
 
+def ClosePreviousWindow():
+    try:
+        LoginWindow.destroy()
+    except:
+        pass
+    try:
+        RegisterWindow.destroy()
+    except:
+        pass
+    try:
+        CharacterSelectionWindow.destroy()
+    except:
+        pass
+    try:
+        InitialWindow.destroy()
+    except:
+        pass
+    try:
+        GamemodeWindow.destroy()
+    except:
+        pass
+    try:
+        DetailsWindow.destroy()
+    except:
+        pass
+    try:
+        TrainingSelectionWindow.destroy()
+    except:
+        pass
+    try:
+        HistorySelectionWindow.destroy()
+    except:
+        pass
+    try:
+        FightWindow.destroy()
+    except:
+        pass
+
 def SetupWindow(tkInstance,size,title,bgcolor,icon):
     tkInstance.geometry(size)
     tkInstance.title("Juego Loco 3mil8mil") # editar el titulo
@@ -21,7 +63,7 @@ def SetupWindow(tkInstance,size,title,bgcolor,icon):
     tkInstance.iconbitmap("VamohIcon.ico") # editar el icono de la aplicacion
 
 def OpenLoginWindow():
-    AccountsWindow.destroy()
+    ClosePreviousWindow()
     global LoginWindow
     LoginWindow = Tk() # instanciar
     LoginWindow.geometry("400x300") # alterar el tamanio
@@ -60,10 +102,7 @@ def OpenLoginWindow():
     LoginWindow.mainloop()
 
 def OpenRegisterWindow():
-    try:
-        LoginWindow.destroy()
-    except:
-        AccountsWindow.destroy()
+    ClosePreviousWindow()
     global RegisterWindow
     RegisterWindow = Tk() # instanciar
     RegisterWindow.geometry("400x300") # alterar el tamanio
@@ -111,7 +150,7 @@ def OpenRegisterWindow():
     RegisterWindow.mainloop()
 
 def OpenGamemodeWindow():
-    LoginWindow.destroy()
+    ClosePreviousWindow()
     global GamemodeWindow
     GamemodeWindow = Tk() # instanciar
     GamemodeWindow.geometry("400x300") # alterar el tamanio
@@ -128,7 +167,6 @@ def OpenGamemodeWindow():
     HistoryButton.place(relx=0.5,rely=0.6,anchor=CENTER)
 
 def OpenDetailsWindow(character):
-    
     
     global DetailsWindow
     # DetailsWindow = Tk() # instanciar
@@ -187,14 +225,18 @@ def OpenDetailsWindow(character):
     DetailsWindow.mainloop()
 
 def OpenHistorySelectionWindow():
-    global DetailsWindow
+    ClosePreviousWindow()
+    global HistorySelectionWindow
     HistorySelectionWindow = Tk() # instanciar
     HistorySelectionWindow.geometry("400x300") # alterar el tamanio
     HistorySelectionWindow.title("Juego Loco 3mil8mil") # editar el titulo
     HistorySelectionWindow.config(bg="#C1B9B9") # editar el background
     HistorySelectionWindow.iconbitmap("VamohIcon.ico") # editar el icono de la aplicacion
 
+    HistorySelectionWindow.mainloop()
+
 def OpenTrainingSelectionWindow():
+    ClosePreviousWindow()
     global TrainingSelectionWindow
     TrainingSelectionWindow = Tk() # instanciar
     TrainingSelectionWindow.geometry("400x300") # alterar el tamanio
@@ -202,19 +244,10 @@ def OpenTrainingSelectionWindow():
     TrainingSelectionWindow.config(bg="#C1B9B9") # editar el background
     TrainingSelectionWindow.iconbitmap("VamohIcon.ico") # editar el icono de la aplicacion
 
+    TrainingSelectionWindow.mainloop()
+
 def OpenCharacterSelectionWindow():
-    try:
-        GamemodeWindow.destroy()
-    except:
-        pass
-    try:
-        AccountsWindow.destroy()
-    except:
-        pass
-    try:
-        LoginWindow.destroy()
-    except:
-        pass
+    ClosePreviousWindow()
     global CharacterSelectionWindow
     CharacterSelectionWindow = Tk() # instanciar
     CharacterSelectionWindow.geometry("400x400") # alterar el tamanio
@@ -222,6 +255,7 @@ def OpenCharacterSelectionWindow():
     CharacterSelectionWindow.config(bg="#C1B9B9") # editar el background
     CharacterSelectionWindow.iconbitmap("VamohIcon.ico") # editar el icono de la aplicacion
 
+    global characters
     characters = initCharacters()
 
     Dir ="images/"
@@ -249,6 +283,7 @@ def OpenCharacterSelectionWindow():
     im5 = ImageTk.PhotoImage(Im_5)
     im6 = ImageTk.PhotoImage(Im_6)
     characterImages = [im1,im2,im3,im4,im5,im6]
+    # cuantityList = [0] * len(characters)
 
     #podria hacer un arreglo de personajes, asi con dos for anidados inicializo cada una de todas estas cosas sin tener tanta linea
     #haciendo 6 fors me parece, en vez de 6 anidados en pares
@@ -266,12 +301,22 @@ def OpenCharacterSelectionWindow():
             Button(CharacterSelectionWindow,text="Detalle",command=OpenDetailsWindow).grid(row=i,column=j)
     '''
     
+    cuantityList = [0,0,0,0,0,0]
+    global charactersToFight
+    charactersToFight = []
+
+
     Character1Label = Label(CharacterSelectionWindow,text="Aquarder",bg="#C1B9B9").grid(row=0,column=0)
     Character2Label = Label(CharacterSelectionWindow,text="Electder",bg="#C1B9B9").grid(row=0,column=1)
     Character3Label = Label(CharacterSelectionWindow,text="Firesor",bg="#C1B9B9").grid(row=0,column=2)
-    Character1Button = Button(CharacterSelectionWindow,image=im1,command=OpenLoginWindow).grid(row=1,column=0) #ipadx para acomodar tamaños
-    Character2Button = Button(CharacterSelectionWindow,image=im2,command=OpenLoginWindow).grid(row=1,column=1)
-    Character3Button = Button(CharacterSelectionWindow,image=im3,command=OpenLoginWindow).grid(row=1,column=2)
+    Character1Button = Button(CharacterSelectionWindow,image=im1,command=partial(SelectCharacter,cuantityList,0))
+    Character1Button.grid(row=1,column=0) #ipadx para acomodar tamaños
+    Character2Button = Button(CharacterSelectionWindow,image=im2,command=partial(SelectCharacter,cuantityList,1))
+    Character2Button.grid(row=1,column=1)
+    # Character3Button = Button(CharacterSelectionWindow,image=im3,command=OpenLoginWindow).grid(row=1,column=2)
+    Character3Button = Button(CharacterSelectionWindow,image=im3,command=partial(SelectCharacter,cuantityList,2))
+    Character3Button.grid(row=1,column=2)
+
     Details1Button = Button(CharacterSelectionWindow,text="Detalle",command=partial(OpenDetailsWindow,characters[0])).grid(row=2,column=0)
     Details2Button = Button(CharacterSelectionWindow,text="Detalles",command=partial(OpenDetailsWindow,characters[1])).grid(row=2,column=1)
     Details3Button = Button(CharacterSelectionWindow,text="Detalle",command=partial(OpenDetailsWindow,characters[2])).grid(row=2,column=2)
@@ -279,22 +324,32 @@ def OpenCharacterSelectionWindow():
     Character4Label = Label(CharacterSelectionWindow,text="Mousebug",bg="#C1B9B9").grid(row=3,column=0)
     Character5Label = Label(CharacterSelectionWindow,text="Splant",bg="#C1B9B9").grid(row=3,column=1)
     Character6Label = Label(CharacterSelectionWindow,text="Rockdog",bg="#C1B9B9").grid(row=3,column=2)
-    Character4Button = Button(CharacterSelectionWindow,image=im4,command=OpenLoginWindow).grid(row=4,column=0) #ipadx para acomodar tamaños
-    Character5Button = Button(CharacterSelectionWindow,image=im5,command=OpenLoginWindow).grid(row=4,column=1)
-    Character6Button = Button(CharacterSelectionWindow,image=im6,command=OpenLoginWindow).grid(row=4,column=2)
+    Character4Button = Button(CharacterSelectionWindow,image=im4,command=partial(SelectCharacter,cuantityList,3))
+    Character4Button.grid(row=4,column=0) #ipadx para acomodar tamaños
+    Character5Button = Button(CharacterSelectionWindow,image=im5,command=partial(SelectCharacter,cuantityList,4))
+    Character5Button.grid(row=4,column=1)
+    Character6Button = Button(CharacterSelectionWindow,image=im6,command=partial(SelectCharacter,cuantityList,5))
+    Character6Button.grid(row=4,column=2)
     Details4Button = Button(CharacterSelectionWindow,text="Detalle",command=partial(OpenDetailsWindow,characters[3])).grid(row=5,column=0)
     Details5Button = Button(CharacterSelectionWindow,text="Detalle",command=partial(OpenDetailsWindow,characters[4])).grid(row=5,column=1)
     Details6Button = Button(CharacterSelectionWindow,text="Detalle",command=partial(OpenDetailsWindow,characters[5])).grid(row=5,column=2)
 
+    global ClearButton
+    ClearButton = Button(CharacterSelectionWindow,text="Limpiar selecciones",command=partial(ClearSelections,cuantityList),state=tkinter.DISABLED)
+    ClearButton.grid(row=7,column=2)
     StartButton = Button(CharacterSelectionWindow,text="Iniciar",command=OpenFightWindow).grid(row=6,column=1)
+
+    global characterButtons
+    characterButtons = [Character1Button,Character2Button,Character3Button,Character4Button,Character5Button,Character6Button]
 
     # Character1Label = Label(CharacterSelectionWindow,text="buenas").pack(side = TOP, pady = 0.5)
     # Character1Button = Button(CharacterSelectionWindow,text="buenas").pack(side = TOP, pady = 0.5)
     # Character1Button.place(relx=0.5,rely=0.6,anchor=CENTER)
+
     CharacterSelectionWindow.mainloop()
 
 def OpenFightWindow():
-    CharacterSelectionWindow.destroy()
+    ClosePreviousWindow()
     global FightWindow
     FightWindow = Tk() # instanciar
     FightWindow.geometry("400x300") # alterar el tamanio
@@ -302,11 +357,38 @@ def OpenFightWindow():
     FightWindow.config(bg="#C1B9B9") # editar el background
     FightWindow.iconbitmap("VamohIcon.ico") # editar el icono de la aplicacion
 
-    Attack1Button = Button(FightWindow,text="Ataque1",command=OpenLoginWindow).grid(row=0,column=0,ipadx=20)
-    Attack2Button = Button(FightWindow,text="Ataque2",command=OpenLoginWindow).grid(row=1,column=0)
-    Attack3Button = Button(FightWindow,text="Ataque3",command=OpenLoginWindow).grid(row=2,column=0)
-    Attack3Button = Button(FightWindow,text="Potenciador",command=OpenLoginWindow).grid(row=3,column=0)
-    # Attack4Button = Button(CharacterSelectionWindow,text="Detalle",command=OpenLoginWindow).grid(row=5,column=2)
+    changeTurn = tkinter.BooleanVar()
+
+    characters = initCharacters()
+
+    character1 = characters[0]
+    character2 = characters[1]
+
+    Attack1Button = Button(FightWindow,text=list(character1.attacks)[0],command=partial(UseAbility,changeTurn)).grid(row=0,column=0,ipadx=20)
+    Attack2Button = Button(FightWindow,text=list(character1.attacks)[1],command=OpenLoginWindow).grid(row=1,column=0)
+    Attack3Button = Button(FightWindow,text=list(character1.attacks)[2],command=OpenLoginWindow).grid(row=2,column=0)
+    Attack4Button = Button(FightWindow,text=list(character1.attacks)[3],command=OpenLoginWindow).grid(row=3,column=0)
+    Ac = Label(FightWindow,text="MAINCRAAAAAH")
+    Ac.grid(row=4,column=0,columnspan=7,rowspan=4)
+
+    # while character1.HP > 0 and character2.HP > 0:
+    t=random.randint(1,2)
+    print(t)
+    if (t==1):
+        Ac.config(text="Primer movimiento es tuyo\n¡¡Piensa bien!!\n")
+        FightWindow.wait_variable(changeTurn)
+        print("potatos")
+
+    else:
+        Ac.config(text="Primer movimiento es del CPU\n¡¡Cuidado!!\n")
+        # CPU(Personaje, contra,Nombre2,tipo1,tipo2)
+    time.sleep(2)
+
+
+    FightWindow.mainloop()
+
+def UseAbility(changeTurn):
+    changeTurn.set(not changeTurn.get())
 
 def RegisterValidation(UsernameTextBox,PasswordTextBox,RePasswordTextBox):
     username = UsernameTextBox.get()
@@ -365,45 +447,83 @@ def LoginValidation(username, password):
     #Comprobar contraseña
     if Data[2][0] == password.get():
         OpenCharacterSelectionWindow()
+    else:
+        ms.showerror(message="Contraseña incorrecta",title="No fue posible iniciar sesión")
+        password.delete(0,END)
                 
-    #hay que ver cómo guardamos el usuario actualmente en la sesión. tal vez un arreglo global con toda la info, 
-    #misma que usaría para guardar la partida en caso de que se cierre la ventana
-
-    #Llamar funcion al cerrar ventana, ayudara para guardar partidas
-    '''
-    import tkinter as tk
-    from tkinter import messagebox
-
-    root = tk.Tk()
-    def on_closing():
-    if messagebox.askokcancel("Quit", "Do you want to quit?"):
-        root.destroy()
-
-    root.protocol("WM_DELETE_WINDOW", on_closing)
-    '''
-
-# --- window
-AccountsWindow = Tk() # instanciar
-AccountsWindow.geometry("400x300") # alterar el tamanio
-AccountsWindow.title("Juego Loco 3mil8mil") # editar el titulo
-AccountsWindow.config(bg="#C1B9B9") # editar el background
-AccountsWindow.iconbitmap("VamohIcon.ico") # editar el icono de la aplicacion
+def OpenInitialWindow():
 
 
-# button
-LoginButton = Button(AccountsWindow, text="Iniciar sesión", command=OpenCharacterSelectionWindow) #cambiar a openloginwindow
-LoginButton.place(relx=0.5,rely=0.4,anchor=CENTER)
+    # --- window
+    global InitialWindow
+    InitialWindow = Tk() # instanciar
+    InitialWindow.geometry("400x300") # alterar el tamanio
+    InitialWindow.title("Juego Loco 3mil8mil") # editar el titulo
+    InitialWindow.config(bg="#C1B9B9") # editar el background
+    InitialWindow.iconbitmap("VamohIcon.ico") # editar el icono de la aplicacion
 
 
-# button
-RegisterButton = Button(AccountsWindow, text="Usuario nuevo", command=OpenRegisterWindow)
-RegisterButton.place(relx=0.5,rely=0.6,anchor=CENTER)
-
-# label
-GameTitle = Label(AccountsWindow, text="Juego Loco 3mil8mil")
-GameTitle.place(relx=0.5,rely=0.1,anchor=CENTER)
-GameTitle.config(bg="#C1B9B9")
+    # button
+    LoginButton = Button(InitialWindow, text="Iniciar sesión", command=OpenLoginWindow) #cambiar a openloginwindow
+    LoginButton.place(relx=0.5,rely=0.4,anchor=CENTER)
 
 
-AccountsWindow.mainloop()
+    # button
+    RegisterButton = Button(InitialWindow, text="Usuario nuevo", command=OpenRegisterWindow)
+    RegisterButton.place(relx=0.5,rely=0.6,anchor=CENTER)
 
+    # label
+    GameTitle = Label(InitialWindow, text="Juego Loco 3mil8mil")
+    GameTitle.place(relx=0.5,rely=0.1,anchor=CENTER)
+    GameTitle.config(bg="#C1B9B9")
+
+
+    InitialWindow.mainloop()
+
+def SelectCharacter(cuantityList, index):
+
+    cuantityList[index] += 1
+
+    charactersToFight.append(characters[index])
+
+    if sum(cuantityList) >= 2:
+        for button in characterButtons:
+            button.config(state=DISABLED)
+        ClearButton.config(state=NORMAL)
+
+
+    if cuantityList[index] != 1 or sum(cuantityList) > 1:
+        characterButtons[index].config(bg="#2596be")
+    else:
+        characterButtons[index].config(bg="#873e23")
+
+def ClearSelections(cuantityList):
+    for button in characterButtons:
+        button.config(state=NORMAL,bg="SystemButtonFace")
+
+    for i in range(len(cuantityList)):
+        cuantityList[i] = 0
+
+    ClearButton.config(state=DISABLED)
+    charactersToFight.clear()
+
+
+OpenFightWindow()
+
+# Bindear botno a tecla y detectar cierre de ventana
+'''
+#hay que ver cómo guardamos el usuario actualmente en la sesión. tal vez un arreglo global con toda la info, 
+#misma que usaría para guardar la partida en caso de que se cierre la ventana
+boton.bind("<Return>", saludar_enter)
+
+#Llamar funcion al cerrar ventana, ayudara para guardar partidas
+import tkinter as tk
+from tkinter import messagebox
+
+root = tk.Tk()
+def on_closing():
+if messagebox.askokcancel("Quit", "Do you want to quit?"):
+    root.destroy()
+
+root.protocol("WM_DELETE_WINDOW", on_closing)
+'''
