@@ -1,86 +1,88 @@
 class Character:
-    def __init__(self,name,HP,type,powerUp,imagepath,attacks,advantage,disadvantage,normal):
+    def __init__(self,name,HP,type,isPowerUpActive,imagepath,attacks,powerUpName,advantage,disadvantage,normal):
         self.name = name
         self.HP = HP
         self.type = type
         self.attacks = attacks
-        self.powerUp = powerUp
+        self.powerUpName = powerUpName
+        self.isPowerUpActive = isPowerUpActive
         self.imagepath=imagepath
         self.advantage = advantage
         self.disadvantage = disadvantage
         self.normal = normal
+        self.isPowerUpAvailable = True
+        self.powerUpTurnsCounter = 5
+        self.isPlayer = False
 
-    def attack(self,attackedCharacter,attackIndex):
+    def attack(self,enemyType,attackName):
         # Si el ataque es el primero
-        if attackIndex == 0:
-            attackedCharacter.HP -= self.checkCorrectDamage(attackedCharacter.type)
+        attackNames = list(self.attacks)
+
+        if attackName == attackNames[0]:
+            return self.checkDamageByEnemyType(enemyType) + 2 if self.isPowerUpActive else 0
             #damage = checkAdvantage(type) + powerUpDamage()
         else:
-        # Si no solo se hace el daño
-            attackedCharacter.HP -= self.attacks[attackIndex]
+        # Si no, solo se hace el daño
+            return self.attacks[attackName]
 
+    def receiveDamage(self,damage):
+        self.HP -= damage
 
-
-    def checkCorrectDamage(self,enemyType):
+    def checkDamageByEnemyType(self,enemyType):
         #ventaja
+        attackName = list(self.attacks)[0]
+        attackDamage = self.attacks[attackName]
         if self.hasAdvantage(enemyType):
-            if self.powerUp:
-                return self.attacks[4]
-            else:
-                return 5
+            return attackDamage[1]
         #desventaja
-        elif self.hasDisadvantage(self,enemyType):
-            if self.powerUp:
-                return 4
-            else:
-                return 2
+        elif self.hasDisadvantage(enemyType):
+            return attackDamage[2]
         #normal
         else:
-            if self.powerUp:
-                return 5
-            else:
-                return 3
+            return attackDamage[0]
 
     def hasAdvantage(self,enemyType):
-        if self.type == "Agua" and (enemyType == "Roca" or enemyType == "Fuego"):
-            return True
-        elif self.type == "Fuego" and (enemyType == "Planta" or enemyType == "Escarabajo"):
-            return True
-        elif self.type == "Eléctrico" and (enemyType == "Agua" or enemyType == "Escarabajo"):
-            return True
-        elif self.type == "Escarabajo" and (enemyType == "Planta" or enemyType == "Roca"):
-            return True
-        elif self.type == "Planta" and (enemyType == "Agua" or enemyType == "Eléctrico" or enemyType == "Roca"):
-            return True
-        elif self.type == "Roca" and (enemyType == "Fuego" or enemyType == "Eléctrico"):
-            return True
-        else:
-            return False
+        for type in self.advantage:
+            if enemyType == type:
+                return True
+        return False
 
     def hasDisadvantage(self,enemyType):
-        if self.type == "Agua" and (enemyType == "Eléctrico" or enemyType == "Planta"):
-            return True
-        elif self.type == "Fuego" and (enemyType == "Agua" or enemyType == "Roca"):
-            return True
-        elif self.type == "Eléctrico" and (enemyType == "Roca" or enemyType == "Planta"):
-            return True
-        elif self.type == "Escarabajo" and (enemyType == "Fuego" or enemyType == "Eléctrico"):
-            return True
-        elif self.type == "Planta" and (enemyType == "Fuego" or enemyType == "Escarabajo"):
-            return True
-        elif self.type == "Roca" and (enemyType == "Agua" or enemyType == "Planta"):
-            return True
-        else:
-            return False
+        for type in self.disadvantage:
+            if enemyType == type:
+                return True
+        return False
+
+
+    def activatePowerUp(self):
+        self.powerUpTurnsCounter = 4
+        self.isPowerUpActive = True
+        self.isPowerUpAvailable = False
+    
+    def updatePowerUp(self):
+        if self.powerUpTurnsCounter > -1 and self.powerUpTurnsCounter < 5:
+            self.powerUpTurnsCounter -= 1
+
+        if self.powerUpTurnsCounter == 1:
+            self.isPowerUpActive = False
+
+        elif self.powerUpTurnsCounter == 0:
+            # self.powerUpTurnsCounter = 3
+            self.isPowerUpAvailable = True
+                
+
+
+
+        
 
 def initCharacters():
     characters = [
-    Character("Aquarder",25,"Agua",False,"images/aquarder.png",{"Aqua-jet":[3,5,2,5,7,4],"Cola férrea":2,"Cabezazo":2,"Lluvia":None},["Roca","Fuego"],["Eléctrico","Planta"],["Agua","Escarabajo"]),
-    Character("Electder",25,"Eléctrico",False,"images/electder.png",{"Trueno":[3,5,2,5,7,4],"Arañazo":3,"Mordisco":3,"Campo magnético":None},["Agua","Escarabajo"],["Roca","Planta"],["Eléctrico","Fuego"]),
-    Character("Firesor",25,"Fuego",False,"images/firesor.png",{"Llamarada":[3,5,2,5,7,4],"Embestida":2,"Mordisco":2,"Día soleado":None},["Planta","Escarabajo"],["Agua","Roca"],["Eléctrico","Fuego"]),
-    Character("Mousebug",25,"Escarabajo",False,"images/mousebug.png",{"Picotazo":[3,5,2,5,7,4],"Embestida":2,"Cabezazo":2,"Esporas":None},["Planta","Roca"],["Fuego","Eléctrico"],["Escarabajo","Agua"]),
-    Character("Splant",25,"Planta",False,"images/splant.png",{"Hoja navaja":[3,5,2,5,7,4],"Mordisco":2,"Cabezazo":2,"Rayo solar":None},["Roca","Agua","Eléctrico"],["Fuego","Escarabajo"],["Planta"]),
-    Character("Rockdog",25,"Roca",False,"images/rockdog.png",{"Roca afilado":[3,5,2,5,7,4],"Velocidad":2,"Cola ferrea":2,"Campo rocoso":None},["Fuego","Eléctrico"],["Agua","Planta"],["Roca","Escarabajo"])
+    Character("Aquarder",25,"Agua",False,"images/aquarder.png",{"Aqua-jet":[3,5,2,5,7,4],"Cola férrea":2,"Cabezazo":2},"Lluvia",["Roca","Fuego"],["Eléctrico","Planta"],["Agua","Escarabajo"]),
+    Character("Electder",25,"Eléctrico",False,"images/electder.png",{"Trueno":[3,5,2,5,7,4],"Arañazo":3,"Mordisco":3},"Campo magnético",["Agua","Escarabajo"],["Roca","Planta"],["Eléctrico","Fuego"]),
+    Character("Firesor",25,"Fuego",False,"images/firesor.png",{"Llamarada":[3,5,2,5,7,4],"Embestida":2,"Mordisco":2},"Día soleado",["Planta","Escarabajo"],["Agua","Roca"],["Eléctrico","Fuego"]),
+    Character("Mousebug",25,"Escarabajo",False,"images/mousebug.png",{"Picotazo":[3,5,2,5,7,4],"Embestida":2,"Cabezazo":2},"Esporas",["Planta","Roca"],["Fuego","Eléctrico"],["Escarabajo","Agua"]),
+    Character("Splant",25,"Planta",False,"images/splant.png",{"Hoja navaja":[3,5,2,5,7,4],"Mordisco":2,"Cabezazo":2},"Rayo solar",["Roca","Agua","Eléctrico"],["Fuego","Escarabajo"],["Planta"]),
+    Character("Rockdog",25,"Roca",False,"images/rockdog.png",{"Roca afilado":[3,5,2,5,7,4],"Velocidad":2,"Cola ferrea":2},"Campo rocoso",["Fuego","Eléctrico"],["Agua","Planta"],["Roca","Escarabajo"])
     ]
     return characters
 

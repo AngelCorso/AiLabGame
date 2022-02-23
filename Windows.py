@@ -351,44 +351,163 @@ def OpenCharacterSelectionWindow():
 def OpenFightWindow():
     ClosePreviousWindow()
     global FightWindow
+    global displayText
     FightWindow = Tk() # instanciar
     FightWindow.geometry("400x300") # alterar el tamanio
     FightWindow.title("Juego Loco 3mil8mil") # editar el titulo
     FightWindow.config(bg="#C1B9B9") # editar el background
     FightWindow.iconbitmap("VamohIcon.ico") # editar el icono de la aplicacion
 
+    displayText = tkinter.StringVar()
+    displayText.set("")
+    global changeTurn
     changeTurn = tkinter.BooleanVar()
+    changeTurn.set(False)
 
     characters = initCharacters()
 
     character1 = characters[0]
     character2 = characters[1]
 
-    Attack1Button = Button(FightWindow,text=list(character1.attacks)[0],command=partial(UseAbility,changeTurn)).grid(row=0,column=0,ipadx=20)
-    Attack2Button = Button(FightWindow,text=list(character1.attacks)[1],command=OpenLoginWindow).grid(row=1,column=0)
-    Attack3Button = Button(FightWindow,text=list(character1.attacks)[2],command=OpenLoginWindow).grid(row=2,column=0)
-    Attack4Button = Button(FightWindow,text=list(character1.attacks)[3],command=OpenLoginWindow).grid(row=3,column=0)
-    Ac = Label(FightWindow,text="MAINCRAAAAAH")
+    character1.isPlayer = True
+    character2.isPlayer = False
+
+    Ac = Label(FightWindow,textvariable=displayText)
     Ac.grid(row=4,column=0,columnspan=7,rowspan=4)
 
+    attackNames = list(character1.attacks)
+
+    Attack1Button = Button(FightWindow,text=attackNames[0],command=partial(UseAbility,character1,character2,attackNames[0]))
+    Attack1Button.grid(row=0,column=0,ipadx=20)
+    Attack2Button = Button(FightWindow,text=attackNames[1],command=partial(UseAbility,character1,character2,attackNames[1]))
+    Attack2Button.grid(row=1,column=0)
+    Attack3Button = Button(FightWindow,text=attackNames[2],command=partial(UseAbility,character1,character2,attackNames[2]))
+    Attack3Button.grid(row=2,column=0)
+    global powerUpButton
+    global attackButtons 
+    attackButtons = [Attack1Button,Attack2Button,Attack3Button]
+    powerUpButton = Button(FightWindow,text=character1.powerUpName,command=partial(activatePowerUp,character1))
+    powerUpButton.grid(row=3,column=0)
+
     # while character1.HP > 0 and character2.HP > 0:
-    t=random.randint(1,2)
-    print(t)
-    if (t==1):
-        Ac.config(text="Primer movimiento es tuyo\n¡¡Piensa bien!!\n")
-        FightWindow.wait_variable(changeTurn)
-        print("potatos")
 
-    else:
-        Ac.config(text="Primer movimiento es del CPU\n¡¡Cuidado!!\n")
-        # CPU(Personaje, contra,Nombre2,tipo1,tipo2)
-    time.sleep(2)
+    
+    # FightWindow.after(2000,partial(FirstTurn,changeTurn,Ac))
 
-
+    #probar si hacer el while dentro de first turn jala, a la vez calar el while con una condicion posible de cambiar
+    StartFight(character1,character2)
+            
     FightWindow.mainloop()
 
-def UseAbility(changeTurn):
-    changeTurn.set(not changeTurn.get())
+def activatePowerUp(character):
+    character.activatePowerUp()
+    displayText.set(character.name + " ha utilizado " + character.powerUpName +"\nQuedan 2 movimientos")
+    if character.isPlayer:
+        powerUpButton.config(state=DISABLED)
+        changeTurn.set(not changeTurn.get())
+        for button in attackButtons:
+            button.config(state=DISABLED)
+ 
+def updatePowerUp(character):
+    character.updatePowerUp()
+    if character.isPlayer and character.isPowerUpAvailable:
+        powerUpButton.config(state=NORMAL)
+
+def StartFight(player,cpu):
+
+    FightWindow.update_idletasks()
+    t=random.randint(1,2)
+    if cpu.isPowerUpAvailable:
+        randomAttack = random.randint(0,3)
+    else:
+        randomAttack = random.randint(0,2)
+
+    cpuAttacksNames = list(cpu.attacks)
+    print("primer turno" + str(t))
+    if (t==1):
+        # Ac.config(text="Primer movimiento es tuyo\n¡¡Piensa bien!!\n")
+        displayText.set("Primer movimiento es tuyo\n¡¡Piensa bien!!\n")
+        FightWindow.wait_variable(changeTurn) #Esto al cambiar esto significa que el prota ataca
+        FightWindow.update()
+        print(str(player.powerUpTurnsCounter) + " counter")
+        updatePowerUp(player)
+        print(str(player.powerUpTurnsCounter) + " counter")
+        time.sleep(2)
+
+    else:
+        displayText.set("Primer movimiento es del CPU\n¡¡Cuidado!!\n")
+        for button in attackButtons:
+            button.config(state=DISABLED)
+        powerUpButton.config(state=DISABLED)
+        FightWindow.update()
+        time.sleep(2)
+        if randomAttack < 3:
+            UseAbility(cpu,player,cpuAttacksNames[randomAttack])
+        else:
+            activatePowerUp(cpu)
+        FightWindow.update()
+        updatePowerUp(cpu)
+        time.sleep(2)
+    print("ya fue primer turno")
+    powerUpButton.config(state=DISABLED)
+    # Turns(changeTurn,Ac)
+    life = 25
+    life2 = 25
+    #primer turno fue el del jugador, sigue el cpu
+    while (player.HP > 0 and cpu.HP > 0):
+        if cpu.isPowerUpAvailable:
+            randomAttack = random.randint(0,3)
+        else:
+            randomAttack = random.randint(0,2)
+
+        if changeTurn.get():
+            changeTurn.set(not changeTurn.get()) 
+            displayText.set("Turno del CPU...")
+            FightWindow.update()
+            
+            time.sleep(2)
+            if randomAttack < 3:
+                UseAbility(cpu,player,cpuAttacksNames[randomAttack])
+            else:
+                activatePowerUp(cpu)
+            FightWindow.update()
+            time.sleep(2)
+            # CPU(Personaje, contra,Nombre2,tipo1,tipo2)
+            CPU() #cpu ataca
+            FightWindow.update()
+            time.sleep(2)
+
+        #primer movimiento fue del cpu
+        else:
+            displayText.set("¡¡¡Tu turno!!!")
+            print("turno de jugador")
+            for button in attackButtons:
+                button.config(state=NORMAL)
+            FightWindow.wait_variable(changeTurn) #Esto al cambiar esto significa que el prota ataca
+            FightWindow.update()
+            print(str(player.powerUpTurnsCounter) + " counter")
+            updatePowerUp(player)
+            print(str(player.powerUpTurnsCounter) + " counter")
+            time.sleep(2)
+    
+    print("se termino")
+            
+def UseAbility(attackingCharacter,attackedCharacter,attackName):
+    if attackingCharacter.isPlayer:
+        changeTurn.set(not changeTurn.get())
+        for button in attackButtons:
+            button.config(state=DISABLED)
+
+    damage = attackingCharacter.attack(attackedCharacter.type,attackName)
+    print(attackingCharacter.type)
+    print(attackedCharacter.type)
+    print(attackingCharacter.isPowerUpActive)
+    print(damage)
+    attackedCharacter.receiveDamage(damage)
+    displayText.set(attackingCharacter.name + " ha utilizado " + attackName)
+
+def CPU():
+    displayText.set("el cpu ataco")
 
 def RegisterValidation(UsernameTextBox,PasswordTextBox,RePasswordTextBox):
     username = UsernameTextBox.get()
@@ -476,7 +595,6 @@ def OpenInitialWindow():
     GameTitle = Label(InitialWindow, text="Juego Loco 3mil8mil")
     GameTitle.place(relx=0.5,rely=0.1,anchor=CENTER)
     GameTitle.config(bg="#C1B9B9")
-
 
     InitialWindow.mainloop()
 
