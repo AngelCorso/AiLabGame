@@ -373,7 +373,7 @@ def OpenFightWindow():
     character2.isPlayer = False
 
     Ac = Label(FightWindow,textvariable=displayText)
-    Ac.grid(row=4,column=0,columnspan=7,rowspan=4)
+    Ac.grid(row=7,column=0,columnspan=7,rowspan=4)
 
     attackNames = list(character1.attacks)
 
@@ -384,11 +384,34 @@ def OpenFightWindow():
     Attack3Button = Button(FightWindow,text=attackNames[2],command=partial(UseAbility,character1,character2,attackNames[2]))
     Attack3Button.grid(row=2,column=0)
     global powerUpButton
-    global attackButtons 
+    global attackButtons
+    global character1HP
+    global character2HP
+    character1HP = tkinter.IntVar()
+    character1HP.set(25)
+    character2HP = tkinter.IntVar()
+    character2HP.set(25)
     attackButtons = [Attack1Button,Attack2Button,Attack3Button]
     powerUpButton = Button(FightWindow,text=character1.powerUpName,command=partial(activatePowerUp,character1))
     powerUpButton.grid(row=3,column=0)
 
+    Im1 = Image.open(character1.imagePath)
+    Im2 = Image.open(character2.imagePath)
+    #Modificamos la imagen a un tamaño predeterminado
+    newsize = (100,100)
+    Im_1 = Im1.resize(newsize)
+    Im_2 = Im2.resize(newsize)
+    #Generar la imagen para Tk
+    im1 = ImageTk.PhotoImage(Im_1)
+    im2 = ImageTk.PhotoImage(Im_2)
+
+    # characterImages = [im1,im2,im3,im4,im5,im6]
+    Label(FightWindow,image=im1).grid(row=0,column=1, rowspan=4)
+    Label(FightWindow,image=im2).grid(row=0,column=2, rowspan=4)
+    Label(FightWindow,text="HP").grid(row=5,column=1)
+    Label(FightWindow,text="HP").grid(row=5,column=2)
+    Label(FightWindow,textvariable=character1HP).grid(row=6,column=1)
+    Label(FightWindow,textvariable=character2HP).grid(row=6,column=2)
     # while character1.HP > 0 and character2.HP > 0:
 
     
@@ -436,8 +459,7 @@ def StartFight(player,cpu):
 
     else:
         displayText.set("Primer movimiento es del CPU\n¡¡Cuidado!!\n")
-        for button in attackButtons:
-            button.config(state=DISABLED)
+        disableButtons(attackButtons)
         powerUpButton.config(state=DISABLED)
         FightWindow.update()
         time.sleep(2)
@@ -462,52 +484,88 @@ def StartFight(player,cpu):
 
         if changeTurn.get():
             changeTurn.set(not changeTurn.get()) 
+
             displayText.set("Turno del CPU...")
+            print("turno de cpu")   
+            disableButtons(attackButtons)
+            powerUpButton.config(state=DISABLED)
+
             FightWindow.update()
             
             time.sleep(2)
+
             if randomAttack < 3:
                 UseAbility(cpu,player,cpuAttacksNames[randomAttack])
             else:
                 activatePowerUp(cpu)
+
             FightWindow.update()
-            time.sleep(2)
-            # CPU(Personaje, contra,Nombre2,tipo1,tipo2)
-            CPU() #cpu ataca
-            FightWindow.update()
+
+            updatePowerUp(cpu)
+
             time.sleep(2)
 
         #primer movimiento fue del cpu
         else:
             displayText.set("¡¡¡Tu turno!!!")
+
             print("turno de jugador")
-            for button in attackButtons:
-                button.config(state=NORMAL)
+
+            enableButtons(attackButtons)
+            if (player.isPowerUpAvailable):
+                powerUpButton.config(state=NORMAL)
+
             FightWindow.wait_variable(changeTurn) #Esto al cambiar esto significa que el prota ataca
             FightWindow.update()
+
             print(str(player.powerUpTurnsCounter) + " counter")
+
             updatePowerUp(player)
+
             print(str(player.powerUpTurnsCounter) + " counter")
             time.sleep(2)
     
     print("se termino")
+    '''
+    winner = True if cpu.HP <= 0 else False
+    historyMode =True
+    if historyMode:
+        if winner:
+            pass
+        else:
+            pass
+        OpenCharacterSelectionWindow()
+    else:
+        if winner:
+            pass
+        else:
+            pass
+        OpenCharacterSelectionWindow()
+    '''
             
 def UseAbility(attackingCharacter,attackedCharacter,attackName):
+
+    damage = attackingCharacter.attack(attackedCharacter.type,attackName)
+    print(str(damage) + " damage con " + attackName)
+    attackedCharacter.receiveDamage(damage)
+
     if attackingCharacter.isPlayer:
         changeTurn.set(not changeTurn.get())
         for button in attackButtons:
             button.config(state=DISABLED)
+        character2HP.set(character2HP.get()-damage)
+    else:
+        character1HP.set(character1HP.get()-damage)
 
-    damage = attackingCharacter.attack(attackedCharacter.type,attackName)
-    print(attackingCharacter.type)
-    print(attackedCharacter.type)
-    print(attackingCharacter.isPowerUpActive)
-    print(damage)
-    attackedCharacter.receiveDamage(damage)
     displayText.set(attackingCharacter.name + " ha utilizado " + attackName)
 
-def CPU():
-    displayText.set("el cpu ataco")
+def disableButtons(buttons):
+    for button in buttons:
+        button.config(state=DISABLED)
+
+def enableButtons(buttons):
+    for button in buttons:
+        button.config(state=NORMAL)
 
 def RegisterValidation(UsernameTextBox,PasswordTextBox,RePasswordTextBox):
     username = UsernameTextBox.get()

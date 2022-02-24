@@ -1,12 +1,12 @@
 class Character:
-    def __init__(self,name,HP,type,isPowerUpActive,imagepath,attacks,powerUpName,advantage,disadvantage,normal):
+    def __init__(self,name,HP,type,isPowerUpActive,imagePath,attacks,powerUpName,advantage,disadvantage,normal):
         self.name = name
         self.HP = HP
         self.type = type
         self.attacks = attacks
         self.powerUpName = powerUpName
         self.isPowerUpActive = isPowerUpActive
-        self.imagepath=imagepath
+        self.imagePath=imagePath
         self.advantage = advantage
         self.disadvantage = disadvantage
         self.normal = normal
@@ -17,9 +17,13 @@ class Character:
     def attack(self,enemyType,attackName):
         # Si el ataque es el primero
         attackNames = list(self.attacks)
+        print(enemyType)
+        print(attackName)
+        print(attackNames[0])
 
         if attackName == attackNames[0]:
-            return self.checkDamageByEnemyType(enemyType) + 2 if self.isPowerUpActive else 0
+            print("wtf bro")
+            return self.checkDamageByEnemyType(enemyType) + (2 if self.isPowerUpActive else 0)
             #damage = checkAdvantage(type) + powerUpDamage()
         else:
         # Si no, solo se hace el daño
@@ -32,6 +36,7 @@ class Character:
         #ventaja
         attackName = list(self.attacks)[0]
         attackDamage = self.attacks[attackName]
+        print("si entro")
         if self.hasAdvantage(enemyType):
             return attackDamage[1]
         #desventaja
@@ -42,15 +47,13 @@ class Character:
             return attackDamage[0]
 
     def hasAdvantage(self,enemyType):
-        for type in self.advantage:
-            if enemyType == type:
-                return True
+        if enemyType in self.advantage:
+            return True
         return False
 
     def hasDisadvantage(self,enemyType):
-        for type in self.disadvantage:
-            if enemyType == type:
-                return True
+        if enemyType in self.disadvantage:
+            return True
         return False
 
 
