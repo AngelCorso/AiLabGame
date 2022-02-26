@@ -584,7 +584,8 @@ def RegisterValidation(UsernameTextBox,PasswordTextBox,RePasswordTextBox):
     username = UsernameTextBox.get()
     password = PasswordTextBox.get()
     rePassword = RePasswordTextBox.get()
-    usernamePath = username + ".csv"
+    global usernamePath
+    usernamePath = "registeredUsers/" + username + ".csv"
 
     # Si ya existe el usuario
     if exists(usernamePath):
@@ -600,7 +601,7 @@ def RegisterValidation(UsernameTextBox,PasswordTextBox,RePasswordTextBox):
         return
 
     datos=[["Contraseña","Personaje","Nivel"]]
-    dbName = UsernameTextBox.get() + ".csv"
+    dbName = "registeredUsers/"+ UsernameTextBox.get() + ".csv"
     datos.append([PasswordTextBox.get()])
     
     archivo=open(dbName,"w")
@@ -615,7 +616,7 @@ def RegisterValidation(UsernameTextBox,PasswordTextBox,RePasswordTextBox):
     
 def LoginValidation(username, password):
     global usernamePath
-    usernamePath = username.get() + ".csv"
+    usernamePath = "registeredUsers/" + username.get() + ".csv"
     Data = [[]]
 
     if username.get() == "" or password.get() == "":
