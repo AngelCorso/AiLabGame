@@ -1,22 +1,14 @@
-#Based on practica_funciones_grafico.py
-# imports
-from cgitb import text
 import csv
-from fileinput import close
 import random
-import select
 from tkinter import *
 from tkinter import messagebox as ms
 import time
 from functools import partial
 import tkinter
-from urllib.parse import _NetlocResultMixinBase
 from PIL import Image, ImageTk
-import os
 from os.path import exists
 from Class import *
-
-#hacer funcion que elimine todas las ventanas abiertas, asi no estar checando el flujo, con trys y excepts
+import copy 
 
 def ClosePreviousWindow():
     try:
@@ -44,59 +36,51 @@ def ClosePreviousWindow():
     except:
         pass
     try:
-        TrainingSelectionWindow.destroy()
-    except:
-        pass
-    try:
-        HistorySelectionWindow.destroy()
-    except:
-        pass
-    try:
         FightWindow.destroy()
     except:
         pass
 
 def SetupWindow(tkInstance,size,title,bgcolor,icon):
     tkInstance.geometry(size)
-    tkInstance.title("Juego Loco 3mil8mil") # editar el titulo
-    tkInstance.config(bg="#C1B9B9") # editar el background
-    tkInstance.iconbitmap("VamohIcon.ico") # editar el icono de la aplicacion
+    tkInstance.title(title) # editar el titulo
+    tkInstance.config(bg=bgcolor) # editar el background
+    tkInstance.iconbitmap(icon) # editar el icono de la aplicacion
+
+def OpenInitialWindow():
+    global InitialWindow
+    InitialWindow = Tk() # instanciar
+    SetupWindow(InitialWindow,"400x300","La Guerra De Los Mejores","#C1B9B9","images/VamohIcon.ico")
+
+    LoginButton = Button(InitialWindow, text="Iniciar sesión", command=OpenLoginWindow)
+    LoginButton.place(relx=0.5,rely=0.4,anchor=CENTER)
+
+    RegisterButton = Button(InitialWindow, text="Usuario nuevo", command=OpenRegisterWindow)
+    RegisterButton.place(relx=0.5,rely=0.6,anchor=CENTER)
+
+    Label(InitialWindow, text="La Guerra De Los Mejores",bg="#C1B9B9",font=("Arial",14)).place(relx=0.5,rely=0.1,anchor=CENTER)
+
+    InitialWindow.mainloop()
+
 
 def OpenLoginWindow():
     ClosePreviousWindow()
     global LoginWindow
     LoginWindow = Tk() # instanciar
-    LoginWindow.geometry("400x300") # alterar el tamanio
-    LoginWindow.title("Juego Loco 3mil8mil") # editar el titulo
-    LoginWindow.config(bg="#C1B9B9") # editar el background
-    LoginWindow.iconbitmap("VamohIcon.ico") # editar el icono de la aplicacion
+    SetupWindow(LoginWindow,"400x300","La Guerra De Los Mejores","#C1B9B9","images/VamohIcon.ico")
 
-    # label
-    GameTitle = Label(LoginWindow, text="Juego Loco 3mil8mil")
-    GameTitle.place(relx=0.5,rely=0.1,anchor=CENTER)
-    GameTitle.config(bg="#C1B9B9")
+    Label(LoginWindow, text="Identifícate",bg="#C1B9B9").place(relx=0.5,rely=0.1,anchor=CENTER)
 
-    # label
-    UsernameLabel = Label(LoginWindow, text="Usuario")
-    UsernameLabel.place(relx=0.5,rely=0.3,anchor=CENTER)
-    UsernameLabel.config(bg="#C1B9B9")
+    Label(LoginWindow, text="Usuario",bg="#C1B9B9").place(relx=0.5,rely=0.3,anchor=CENTER)
 
-    # text box
     UsernameTextBox = Entry(LoginWindow)
     UsernameTextBox.place(relx=0.5,rely=0.4,anchor=CENTER)
 
-    # label
-    PasswordLabel = Label(LoginWindow, text="Contraseña")
-    PasswordLabel.place(relx=0.5,rely=0.6,anchor=CENTER)
-    PasswordLabel.config(bg="#C1B9B9") 
+    Label(LoginWindow, text="Contraseña",bg="#C1B9B9").place(relx=0.5,rely=0.6,anchor=CENTER)
 
-    # text box
-    PasswordTextBox = Entry(LoginWindow)
+    PasswordTextBox = Entry(LoginWindow,show="*")
     PasswordTextBox.place(relx=0.5,rely=0.7,anchor=CENTER)
 
-    # button
     StartButton = Button(LoginWindow, text="Iniciar", command=partial(LoginValidation,UsernameTextBox,PasswordTextBox))
-    # StartButton = Button(LoginWindow, text="Iniciar", command=OpenGamemodeWindow)
     StartButton.place(relx=0.5,rely=0.9,anchor=CENTER)
 
     LoginWindow.mainloop()
@@ -105,45 +89,25 @@ def OpenRegisterWindow():
     ClosePreviousWindow()
     global RegisterWindow
     RegisterWindow = Tk() # instanciar
-    RegisterWindow.geometry("400x300") # alterar el tamanio
-    RegisterWindow.title("Juego Loco 3mil8mil") # editar el titulo
-    RegisterWindow.config(bg="#C1B9B9") # editar el background
-    RegisterWindow.iconbitmap("VamohIcon.ico") # editar el icono de la aplicacion
+    SetupWindow(RegisterWindow,"400x300","La Guerra De Los Mejores","#C1B9B9","images/VamohIcon.ico")
 
-    # label
-    GameTitle = Label(RegisterWindow, text="Juego Loco 3mil8mil")
-    GameTitle.place(relx=0.5,rely=0.1,anchor=CENTER)
-    GameTitle.config(bg="#C1B9B9")
+    Label(RegisterWindow, text="Regístrate",bg="#C1B9B9").place(relx=0.5,rely=0.1,anchor=CENTER)
 
-    # label
-    UsernameLabel = Label(RegisterWindow, text="Usuario")
-    UsernameLabel.place(relx=0.5,rely=0.2,anchor=CENTER)
-    UsernameLabel.config(bg="#C1B9B9")
+    Label(RegisterWindow, text="Usuario",bg="#C1B9B9").place(relx=0.5,rely=0.2,anchor=CENTER)
 
-    # text box
     UsernameTextBox = Entry(RegisterWindow)
     UsernameTextBox.place(relx=0.5,rely=0.3,anchor=CENTER)
 
-    # label
-    PasswordLabel = Label(RegisterWindow, text="Contraseña")
-    PasswordLabel.place(relx=0.5,rely=0.4,anchor=CENTER)
-    PasswordLabel.config(bg="#C1B9B9") 
+    Label(RegisterWindow, text="Contraseña",bg="#C1B9B9").place(relx=0.5,rely=0.4,anchor=CENTER)
 
-    # text box
-    PasswordTextBox = Entry(RegisterWindow)
+    PasswordTextBox = Entry(RegisterWindow,show="*")
     PasswordTextBox.place(relx=0.5,rely=0.5,anchor=CENTER)
 
-    # label
-    RePasswordLabel = Label(RegisterWindow, text="Confirmar contraseña")
-    RePasswordLabel.place(relx=0.5,rely=0.6,anchor=CENTER)
-    RePasswordLabel.config(bg="#C1B9B9") 
+    Label(RegisterWindow, text="Confirmar contraseña",bg="#C1B9B9").place(relx=0.5,rely=0.6,anchor=CENTER)
 
-    # text box
-    RePasswordTextBox = Entry(RegisterWindow)
+    RePasswordTextBox = Entry(RegisterWindow,show="*")
     RePasswordTextBox.place(relx=0.5,rely=0.7,anchor=CENTER)
 
-    # button
-    # RegisterButton = Button(RegisterWindow, text="Registrar", command=RegisterValidation(UsernameTextBox,PasswordTextBox,RePasswordTextBox))
     RegisterButton = Button(RegisterWindow, text="Registrar", command=partial(RegisterValidation,UsernameTextBox,PasswordTextBox,RePasswordTextBox))
     RegisterButton.place(relx=0.5,rely=0.9,anchor=CENTER)
 
@@ -153,35 +117,104 @@ def OpenGamemodeWindow():
     ClosePreviousWindow()
     global GamemodeWindow
     GamemodeWindow = Tk() # instanciar
-    GamemodeWindow.geometry("400x300") # alterar el tamanio
-    GamemodeWindow.title("Select mode") # editar el titulo
-    GamemodeWindow.config(bg="#C1B9B9") # editar el background
-    GamemodeWindow.iconbitmap("VamohIcon.ico") # editar el icono de la aplicacion
+    SetupWindow(GamemodeWindow,"500x300","La Guerra De Los Mejores. Selecciona el modo de juego","#C1B9B9","images/VamohIcon.ico")
 
-    # button
-    TrainingButton = Button(GamemodeWindow, text="Modo entrenamiento", command=OpenCharacterSelectionWindow)
-    TrainingButton.place(relx=0.5,rely=0.4,anchor=CENTER)
+    Button(GamemodeWindow, text="Modo entrenamiento", command=partial(OpenCharacterSelectionWindow,False),height=5,width=20).place(relx=0.5,rely=0.3,anchor=CENTER)
 
-    # button
-    HistoryButton = Button(GamemodeWindow, text="Modo historia", command=OpenLoginWindow)
-    HistoryButton.place(relx=0.5,rely=0.6,anchor=CENTER)
+    Button(GamemodeWindow, text="Modo historia", command=partial(checkProgress,True),height=5,width=20).place(relx=0.5,rely=0.7,anchor=CENTER)
+
+def OpenCharacterSelectionWindow(isHistoryMode):
+    ClosePreviousWindow()
+    global CharacterSelectionWindow
+    CharacterSelectionWindow = Tk() # instanciar
+    CharacterSelectionWindow.geometry("400x400") # alterar el tamanio
+    CharacterSelectionWindow.config(bg="#C1B9B9") # editar el background
+    CharacterSelectionWindow.iconbitmap("images/VamohIcon.ico") # editar el icono de la aplicacion
+    if isHistoryMode:
+        CharacterSelectionWindow.title("La Guerra De Los Mejores. Selecciona tu personaje") # editar el titulo
+    else:
+        CharacterSelectionWindow.title("La Guerra De Los Mejores. Selecciona tu personaje y a tu oponente") # editar el titulo
+
+    global characters
+    characters = initCharacters()
+    Dir ="images/"
+    Im1 = Image.open(Dir + "aquarder.png")
+    Im2 = Image.open(Dir + "electder.png")
+    Im3 = Image.open(Dir + "firesor.png")
+    Im4 = Image.open(Dir + "mousebug.png")
+    Im5 = Image.open(Dir + "splant.png")
+    Im6 = Image.open(Dir + "rockdog.png")
+
+    newsize = (100,100)
+    Im_1 = Im1.resize(newsize)
+    Im_2 = Im2.resize(newsize)
+    Im_3 = Im3.resize(newsize)
+    Im_4 = Im4.resize(newsize)
+    Im_5 = Im5.resize(newsize)
+    Im_6 = Im6.resize(newsize)
+
+    im1 = ImageTk.PhotoImage(Im_1)
+    im2 = ImageTk.PhotoImage(Im_2)
+    im3 = ImageTk.PhotoImage(Im_3)
+    im4 = ImageTk.PhotoImage(Im_4)
+    im5 = ImageTk.PhotoImage(Im_5)
+    im6 = ImageTk.PhotoImage(Im_6)
+    
+    cuantityList = [0,0,0,0,0,0]
+    charactersToFight = []
+
+    for i in range(3):
+        Label(CharacterSelectionWindow,text=characters[i].name,bg="#C1B9B9").grid(row=0,column=i)
+
+    Character1Button = Button(CharacterSelectionWindow,image=im1,command=partial(SelectCharacter,cuantityList,0,isHistoryMode,charactersToFight))
+    Character1Button.grid(row=1,column=0) #ipadx para acomodar tamaños
+    Character2Button = Button(CharacterSelectionWindow,image=im2,command=partial(SelectCharacter,cuantityList,1,isHistoryMode,charactersToFight))
+    Character2Button.grid(row=1,column=1)
+    Character3Button = Button(CharacterSelectionWindow,image=im3,command=partial(SelectCharacter,cuantityList,2,isHistoryMode,charactersToFight))
+    Character3Button.grid(row=1,column=2)
+
+    for i in range(3):
+        Button(CharacterSelectionWindow,text="Detalle",command=partial(OpenDetailsWindow,characters[i])).grid(row=2,column=i)
+
+    for i in range(3):
+        Label(CharacterSelectionWindow,text=characters[i+3].name,bg="#C1B9B9").grid(row=3,column=i)
+
+    Character4Button = Button(CharacterSelectionWindow,image=im4,command=partial(SelectCharacter,cuantityList,3,isHistoryMode,charactersToFight))
+    Character4Button.grid(row=4,column=0) #ipadx para acomodar tamaños
+    Character5Button = Button(CharacterSelectionWindow,image=im5,command=partial(SelectCharacter,cuantityList,4,isHistoryMode,charactersToFight))
+    Character5Button.grid(row=4,column=1)
+    Character6Button = Button(CharacterSelectionWindow,image=im6,command=partial(SelectCharacter,cuantityList,5,isHistoryMode,charactersToFight))
+    Character6Button.grid(row=4,column=2)
+
+    for i in range(3):
+        Button(CharacterSelectionWindow,text="Detalle",command=partial(OpenDetailsWindow,characters[i+3])).grid(row=5,column=i)
+
+    global ClearButton
+    ClearButton = Button(CharacterSelectionWindow,text="Limpiar selecciones",command=partial(ClearSelections,cuantityList,charactersToFight),state=tkinter.DISABLED)
+    ClearButton.grid(row=7,column=2)
+
+    global startFightButton
+    startFightButton = Button(CharacterSelectionWindow,text="Iniciar",command=partial(startBattle,charactersToFight,0,isHistoryMode),state=DISABLED)
+    startFightButton.grid(row=6,column=1)
+
+    global characterButtons
+    characterButtons = [Character1Button,Character2Button,Character3Button,Character4Button,Character5Button,Character6Button]
+
+    Button(CharacterSelectionWindow,text="Volver a selección\nde modos de juego",command=OpenGamemodeWindow).grid(row=7,column=0)
+
+    CharacterSelectionWindow.mainloop()
 
 def OpenDetailsWindow(character):
-    
     global DetailsWindow
     # DetailsWindow = Tk() # instanciar
     DetailsWindow = Toplevel(CharacterSelectionWindow) # instanciar
-    DetailsWindow.geometry("400x400") # alterar el tamanio
-    DetailsWindow.title("Juego Loco 3mil8mil") # editar el titulo
-    DetailsWindow.config(bg="#C1B9B9") # editar el background
-    DetailsWindow.iconbitmap("VamohIcon.ico") # editar el icono de la aplicacion
+    SetupWindow(DetailsWindow,"400x400","La Guerra De Los Mejores. Detalles del personaje","#C1B9B9","images/VamohIcon.ico")
 
-    Im1 = Image.open(character.imagepath)
+    Im1 = Image.open(character.imagePath)
     newsize = (100,100)
     Im_1 = Im1.resize(newsize)
     im1 = ImageTk.PhotoImage(Im_1)
 
-    #grid de 11x7
     attacksNames = list(character.attacks)
     attacks = character.attacks
 
@@ -195,27 +228,18 @@ def OpenDetailsWindow(character):
     Label(DetailsWindow,text=disadvantageText,bg="#C1B9B9").grid(row=3,column=0, columnspan = 7)
     Label(DetailsWindow,text=normalText,bg="#C1B9B9").grid(row=4,column=0, columnspan = 7)
 
-    Label(DetailsWindow,text="Habilidad",bg="#C1B9B9").grid(row=5,column=0,sticky=W)
-    Label(DetailsWindow,text="norm",bg="#C1B9B9").grid(row=5,column=1,sticky=W)
-    Label(DetailsWindow,text="At vent",bg="#C1B9B9").grid(row=5,column=2,sticky=W)
-    Label(DetailsWindow,text="At desv",bg="#C1B9B9").grid(row=5,column=3,sticky=W)
-    Label(DetailsWindow,text="pot norm",bg="#C1B9B9").grid(row=5,column=4,sticky=W)
-    Label(DetailsWindow,text="pot vent",bg="#C1B9B9").grid(row=5,column=5,sticky=W)
-    Label(DetailsWindow,text="pot desv",bg="#C1B9B9").grid(row=5,column=6,sticky=W)
+    columnNames = ["Habilidad","norm","At vent","At desv","pot norm","pot vent","pot desv"]
+    for i in range(7):
+        Label(DetailsWindow,text=columnNames[i],bg="#C1B9B9").grid(row=5,column=i,sticky=W)
 
-    # Nombres de ataques
-    Label(DetailsWindow,text=attacksNames[0],bg="#C1B9B9").grid(row=6,column=0,sticky=W)
-    Label(DetailsWindow,text=attacksNames[1],bg="#C1B9B9").grid(row=7,column=0,sticky=W)
-    Label(DetailsWindow,text=attacksNames[2],bg="#C1B9B9").grid(row=8,column=0,sticky=W)
-    Label(DetailsWindow,text=attacksNames[3],bg="#C1B9B9").grid(row=9,column=0,sticky=W)
+    for i in range(3):
+        Label(DetailsWindow,text=attacksNames[i],bg="#C1B9B9").grid(row=i+6,column=0,sticky=W)
+
+    Label(DetailsWindow,text=character.powerUpName,bg="#C1B9B9").grid(row=9,column=0,sticky=W)
 
     #Daños de ataques
-    Label(DetailsWindow,text=str(attacks[attacksNames[0]][0]) + "pt",bg="#C1B9B9").grid(row=6,column=1)
-    Label(DetailsWindow,text=str(attacks[attacksNames[0]][1]) + "pt",bg="#C1B9B9").grid(row=6,column=2)
-    Label(DetailsWindow,text=str(attacks[attacksNames[0]][2]) + "pt",bg="#C1B9B9").grid(row=6,column=3)
-    Label(DetailsWindow,text=str(attacks[attacksNames[0]][3]) + "pt",bg="#C1B9B9").grid(row=6,column=4)
-    Label(DetailsWindow,text=str(attacks[attacksNames[0]][4]) + "pt",bg="#C1B9B9").grid(row=6,column=5)
-    Label(DetailsWindow,text=str(attacks[attacksNames[0]][5]) + "pt",bg="#C1B9B9").grid(row=6,column=6)
+    for i in range(6):
+        Label(DetailsWindow,text=str(attacks[attacksNames[0]][i]) + "pt",bg="#C1B9B9").grid(row=6,column=i+1)
 
     Label(DetailsWindow,text=str(attacks[attacksNames[1]]) + "pt",bg="#C1B9B9").grid(row=7,column=1)
     Label(DetailsWindow,text=str(attacks[attacksNames[2]]) + "pt",bg="#C1B9B9").grid(row=8,column=1)
@@ -224,258 +248,166 @@ def OpenDetailsWindow(character):
     
     DetailsWindow.mainloop()
 
-def OpenHistorySelectionWindow():
-    ClosePreviousWindow()
-    global HistorySelectionWindow
-    HistorySelectionWindow = Tk() # instanciar
-    HistorySelectionWindow.geometry("400x300") # alterar el tamanio
-    HistorySelectionWindow.title("Juego Loco 3mil8mil") # editar el titulo
-    HistorySelectionWindow.config(bg="#C1B9B9") # editar el background
-    HistorySelectionWindow.iconbitmap("VamohIcon.ico") # editar el icono de la aplicacion
+def SelectCharacter(cuantityList, index, isHistoryMode,charactersToFight):
+    cuantityList[index] += 1
 
-    HistorySelectionWindow.mainloop()
+    buttonsPressedNeeded = 1 if isHistoryMode else 2
 
-def OpenTrainingSelectionWindow():
-    ClosePreviousWindow()
-    global TrainingSelectionWindow
-    TrainingSelectionWindow = Tk() # instanciar
-    TrainingSelectionWindow.geometry("400x300") # alterar el tamanio
-    TrainingSelectionWindow.title("Juego Loco 3mil8mil") # editar el titulo
-    TrainingSelectionWindow.config(bg="#C1B9B9") # editar el background
-    TrainingSelectionWindow.iconbitmap("VamohIcon.ico") # editar el icono de la aplicacion
+    charactersToFight.append(characters[index])
 
-    TrainingSelectionWindow.mainloop()
+    if sum(cuantityList) >= buttonsPressedNeeded:
+        disableButtons(characterButtons)
+        ClearButton.config(state=NORMAL)
+        startFightButton.config(state=NORMAL)
 
-def OpenCharacterSelectionWindow():
-    ClosePreviousWindow()
-    global CharacterSelectionWindow
-    CharacterSelectionWindow = Tk() # instanciar
-    CharacterSelectionWindow.geometry("400x400") # alterar el tamanio
-    CharacterSelectionWindow.title("Juego Loco 3mil8mil") # editar el titulo
-    CharacterSelectionWindow.config(bg="#C1B9B9") # editar el background
-    CharacterSelectionWindow.iconbitmap("VamohIcon.ico") # editar el icono de la aplicacion
+    if cuantityList[index] != 1 or sum(cuantityList) > 1:
+        characterButtons[index].config(bg="#2596be") #azul cpu
+    else:
+        characterButtons[index].config(bg="#873e23") #rojo player
+        if not isHistoryMode:
+            ms.showinfo(message="Elige a tu oponente")
 
-    global characters
-    characters = initCharacters()
+def ClearSelections(cuantityList,charactersToFight):
+    for button in characterButtons:
+        button.config(state=NORMAL,bg="SystemButtonFace")
 
-    Dir ="images/"
-    Im1 = Image.open(Dir + "aquarder.png")
-    Im2 = Image.open(Dir + "electder.png")
-    Im3 = Image.open(Dir + "firesor.png")
-    Im4 = Image.open(Dir + "mousebug.png")
-    Im5 = Image.open(Dir + "splant.png")
-    Im6 = Image.open(Dir + "rockdog.png")
+    startFightButton.config(state=DISABLED)
 
-    #Modificamos la imagen a un tamaño predeterminado
-    newsize = (100,100)
-    Im_1 = Im1.resize(newsize)
-    Im_2 = Im2.resize(newsize)
-    Im_3 = Im3.resize(newsize)
-    Im_4 = Im4.resize(newsize)
-    Im_5 = Im5.resize(newsize)
-    Im_6 = Im6.resize(newsize)
+    for i in range(len(cuantityList)):
+        cuantityList[i] = 0
 
-    #Generar la imagen para Tk
-    im1 = ImageTk.PhotoImage(Im_1)
-    im2 = ImageTk.PhotoImage(Im_2)
-    im3 = ImageTk.PhotoImage(Im_3)
-    im4 = ImageTk.PhotoImage(Im_4)
-    im5 = ImageTk.PhotoImage(Im_5)
-    im6 = ImageTk.PhotoImage(Im_6)
-    characterImages = [im1,im2,im3,im4,im5,im6]
-    # cuantityList = [0] * len(characters)
+    ClearButton.config(state=DISABLED)
+    charactersToFight.clear()
 
-    #podria hacer un arreglo de personajes, asi con dos for anidados inicializo cada una de todas estas cosas sin tener tanta linea
-    #haciendo 6 fors me parece, en vez de 6 anidados en pares
-    '''
-    for i in range(0,4,3):
-        for j in range(3):
-            Label(CharacterSelectionWindow,text=characters[j].name,bg="#C1B9B9").grid(row=i,column=j)
-
-    for i in range(1,5,3):
-        for j in range(3):
-            Button(CharacterSelectionWindow,image = characterImages[j],bg="#C1B9B9").grid(row=i,column=j)
-
-    for i in range(2,6,3):
-        for j in range(3):
-            Button(CharacterSelectionWindow,text="Detalle",command=OpenDetailsWindow).grid(row=i,column=j)
-    '''
-    
-    cuantityList = [0,0,0,0,0,0]
-    global charactersToFight
-    charactersToFight = []
-
-
-    Character1Label = Label(CharacterSelectionWindow,text="Aquarder",bg="#C1B9B9").grid(row=0,column=0)
-    Character2Label = Label(CharacterSelectionWindow,text="Electder",bg="#C1B9B9").grid(row=0,column=1)
-    Character3Label = Label(CharacterSelectionWindow,text="Firesor",bg="#C1B9B9").grid(row=0,column=2)
-    Character1Button = Button(CharacterSelectionWindow,image=im1,command=partial(SelectCharacter,cuantityList,0))
-    Character1Button.grid(row=1,column=0) #ipadx para acomodar tamaños
-    Character2Button = Button(CharacterSelectionWindow,image=im2,command=partial(SelectCharacter,cuantityList,1))
-    Character2Button.grid(row=1,column=1)
-    # Character3Button = Button(CharacterSelectionWindow,image=im3,command=OpenLoginWindow).grid(row=1,column=2)
-    Character3Button = Button(CharacterSelectionWindow,image=im3,command=partial(SelectCharacter,cuantityList,2))
-    Character3Button.grid(row=1,column=2)
-
-    Details1Button = Button(CharacterSelectionWindow,text="Detalle",command=partial(OpenDetailsWindow,characters[0])).grid(row=2,column=0)
-    Details2Button = Button(CharacterSelectionWindow,text="Detalles",command=partial(OpenDetailsWindow,characters[1])).grid(row=2,column=1)
-    Details3Button = Button(CharacterSelectionWindow,text="Detalle",command=partial(OpenDetailsWindow,characters[2])).grid(row=2,column=2)
-
-    Character4Label = Label(CharacterSelectionWindow,text="Mousebug",bg="#C1B9B9").grid(row=3,column=0)
-    Character5Label = Label(CharacterSelectionWindow,text="Splant",bg="#C1B9B9").grid(row=3,column=1)
-    Character6Label = Label(CharacterSelectionWindow,text="Rockdog",bg="#C1B9B9").grid(row=3,column=2)
-    Character4Button = Button(CharacterSelectionWindow,image=im4,command=partial(SelectCharacter,cuantityList,3))
-    Character4Button.grid(row=4,column=0) #ipadx para acomodar tamaños
-    Character5Button = Button(CharacterSelectionWindow,image=im5,command=partial(SelectCharacter,cuantityList,4))
-    Character5Button.grid(row=4,column=1)
-    Character6Button = Button(CharacterSelectionWindow,image=im6,command=partial(SelectCharacter,cuantityList,5))
-    Character6Button.grid(row=4,column=2)
-    Details4Button = Button(CharacterSelectionWindow,text="Detalle",command=partial(OpenDetailsWindow,characters[3])).grid(row=5,column=0)
-    Details5Button = Button(CharacterSelectionWindow,text="Detalle",command=partial(OpenDetailsWindow,characters[4])).grid(row=5,column=1)
-    Details6Button = Button(CharacterSelectionWindow,text="Detalle",command=partial(OpenDetailsWindow,characters[5])).grid(row=5,column=2)
-
-    global ClearButton
-    ClearButton = Button(CharacterSelectionWindow,text="Limpiar selecciones",command=partial(ClearSelections,cuantityList),state=tkinter.DISABLED)
-    ClearButton.grid(row=7,column=2)
-    StartButton = Button(CharacterSelectionWindow,text="Iniciar",command=OpenFightWindow).grid(row=6,column=1)
-
-    global characterButtons
-    characterButtons = [Character1Button,Character2Button,Character3Button,Character4Button,Character5Button,Character6Button]
-
-    # Character1Label = Label(CharacterSelectionWindow,text="buenas").pack(side = TOP, pady = 0.5)
-    # Character1Button = Button(CharacterSelectionWindow,text="buenas").pack(side = TOP, pady = 0.5)
-    # Character1Button.place(relx=0.5,rely=0.6,anchor=CENTER)
-
-    CharacterSelectionWindow.mainloop()
-
-def OpenFightWindow():
+def OpenFightWindow(charactersToFight,level,isHistoryMode):
     ClosePreviousWindow()
     global FightWindow
     global displayText
+    global actualLevel
+    actualLevel = level
     FightWindow = Tk() # instanciar
-    FightWindow.geometry("400x300") # alterar el tamanio
-    FightWindow.title("Juego Loco 3mil8mil") # editar el titulo
-    FightWindow.config(bg="#C1B9B9") # editar el background
-    FightWindow.iconbitmap("VamohIcon.ico") # editar el icono de la aplicacion
+    SetupWindow(FightWindow,"400x300","La Guerra De Los Mejores. Demuestra tu destreza","#C1B9B9","images/VamohIcon.ico")
 
     displayText = tkinter.StringVar()
     displayText.set("")
+
     global changeTurn
     changeTurn = tkinter.BooleanVar()
     changeTurn.set(False)
 
     characters = initCharacters()
 
-    character1 = characters[0]
-    character2 = characters[1]
+    player = charactersToFight[0]
+    cpu = characters[actualLevel] if isHistoryMode else copy.copy(charactersToFight[1])
 
-    character1.isPlayer = True
-    character2.isPlayer = False
+    player.isPlayer = True
+    cpu.isPlayer = False
 
-    Ac = Label(FightWindow,textvariable=displayText)
-    Ac.grid(row=7,column=0,columnspan=7,rowspan=4)
+    fightCommentary = Label(FightWindow,textvariable=displayText,bg="#C1B9B9",font=("Arial",12))
+    fightCommentary.grid(row=8,column=0,columnspan=7,rowspan=4)
 
-    attackNames = list(character1.attacks)
+    attackNames = list(player.attacks)
 
-    Attack1Button = Button(FightWindow,text=attackNames[0],command=partial(UseAbility,character1,character2,attackNames[0]))
+    Attack1Button = Button(FightWindow,text=attackNames[0],command=partial(UseAbility,player,cpu,attackNames[0]),width=12)
     Attack1Button.grid(row=0,column=0,ipadx=20)
-    Attack2Button = Button(FightWindow,text=attackNames[1],command=partial(UseAbility,character1,character2,attackNames[1]))
-    Attack2Button.grid(row=1,column=0)
-    Attack3Button = Button(FightWindow,text=attackNames[2],command=partial(UseAbility,character1,character2,attackNames[2]))
-    Attack3Button.grid(row=2,column=0)
+    Attack2Button = Button(FightWindow,text=attackNames[1],command=partial(UseAbility,player,cpu,attackNames[1]),width=12)
+    Attack2Button.grid(row=1,column=0,ipadx=20)
+    Attack3Button = Button(FightWindow,text=attackNames[2],command=partial(UseAbility,player,cpu,attackNames[2]),width=12)
+    Attack3Button.grid(row=2,column=0,ipadx=20)
+
     global powerUpButton
     global attackButtons
-    global character1HP
-    global character2HP
-    character1HP = tkinter.IntVar()
-    character1HP.set(25)
-    character2HP = tkinter.IntVar()
-    character2HP.set(25)
-    attackButtons = [Attack1Button,Attack2Button,Attack3Button]
-    powerUpButton = Button(FightWindow,text=character1.powerUpName,command=partial(activatePowerUp,character1))
-    powerUpButton.grid(row=3,column=0)
+    global playerHP
+    global cpuHP
+    playerHP = tkinter.IntVar()
+    playerHP.set(25)
 
-    Im1 = Image.open(character1.imagePath)
-    Im2 = Image.open(character2.imagePath)
-    #Modificamos la imagen a un tamaño predeterminado
+    cpuHP = tkinter.IntVar()
+    cpuHP.set(25)
+
+    attackButtons = [Attack1Button,Attack2Button,Attack3Button]
+
+    powerUpButton = Button(FightWindow,text=player.powerUpName,command=partial(activatePowerUp,player),width=12)
+    powerUpButton.grid(row=3,column=0,ipadx=20)
+
+    Im1 = Image.open(player.imagePath)
+    Im2 = Image.open(cpu.imagePath)
+
     newsize = (100,100)
     Im_1 = Im1.resize(newsize)
     Im_2 = Im2.resize(newsize)
-    #Generar la imagen para Tk
+
     im1 = ImageTk.PhotoImage(Im_1)
     im2 = ImageTk.PhotoImage(Im_2)
 
-    # characterImages = [im1,im2,im3,im4,im5,im6]
     Label(FightWindow,image=im1).grid(row=0,column=1, rowspan=4)
     Label(FightWindow,image=im2).grid(row=0,column=2, rowspan=4)
-    Label(FightWindow,text="HP").grid(row=5,column=1)
-    Label(FightWindow,text="HP").grid(row=5,column=2)
-    Label(FightWindow,textvariable=character1HP).grid(row=6,column=1)
-    Label(FightWindow,textvariable=character2HP).grid(row=6,column=2)
-    # while character1.HP > 0 and character2.HP > 0:
+    Label(FightWindow,text=player.name,bg="#C1B9B9",font=("Arial",15)).grid(row=5,column=1)
+    Label(FightWindow,text=cpu.name,bg="#C1B9B9",font=("Arial",15)).grid(row=5,column=2)
+    Label(FightWindow,text="HP",bg="#C1B9B9",font=("Arial",15)).grid(row=6,column=1)
+    Label(FightWindow,text="HP",bg="#C1B9B9",font=("Arial",15)).grid(row=6,column=2)
+    Label(FightWindow,textvariable=playerHP,bg="#C1B9B9",font=("Arial",15)).grid(row=7,column=1)
+    Label(FightWindow,textvariable=cpuHP,bg="#C1B9B9",font=("Arial",15)).grid(row=7,column=2)
 
-    
-    # FightWindow.after(2000,partial(FirstTurn,changeTurn,Ac))
+    if isHistoryMode:
+        FightWindow.protocol("WM_DELETE_WINDOW", lambda:loseInHistoryMode(player,actualLevel,isHistoryMode,True)) 
 
-    #probar si hacer el while dentro de first turn jala, a la vez calar el while con una condicion posible de cambiar
-    StartFight(character1,character2)
-            
+    else:
+        FightWindow.protocol("WM_DELETE_WINDOW", lambda:loseInTrainingMode(True)) #
+        
+    StartFight(player,cpu,actualLevel,isHistoryMode)
+
     FightWindow.mainloop()
 
-def activatePowerUp(character):
-    character.activatePowerUp()
-    displayText.set(character.name + " ha utilizado " + character.powerUpName +"\nQuedan 2 movimientos")
-    if character.isPlayer:
-        powerUpButton.config(state=DISABLED)
-        changeTurn.set(not changeTurn.get())
-        for button in attackButtons:
-            button.config(state=DISABLED)
- 
-def updatePowerUp(character):
-    character.updatePowerUp()
-    if character.isPlayer and character.isPowerUpAvailable:
-        powerUpButton.config(state=NORMAL)
+def StartFight(player,cpu,level,isHistoryMode):
 
-def StartFight(player,cpu):
-
+    global actualLevel
+    actualLevel = level
     FightWindow.update_idletasks()
-    t=random.randint(1,2)
+
+    firstTurnNumber=random.randint(1,2)
+
     if cpu.isPowerUpAvailable:
         randomAttack = random.randint(0,3)
     else:
         randomAttack = random.randint(0,2)
 
     cpuAttacksNames = list(cpu.attacks)
-    print("primer turno" + str(t))
-    if (t==1):
-        # Ac.config(text="Primer movimiento es tuyo\n¡¡Piensa bien!!\n")
+ 
+    if (firstTurnNumber==1):
         displayText.set("Primer movimiento es tuyo\n¡¡Piensa bien!!\n")
-        FightWindow.wait_variable(changeTurn) #Esto al cambiar esto significa que el prota ataca
+        FightWindow.wait_variable(changeTurn)
         FightWindow.update()
-        print(str(player.powerUpTurnsCounter) + " counter")
+
+        disableButtons(attackButtons)
+        powerUpButton.config(state=DISABLED)
         updatePowerUp(player)
-        print(str(player.powerUpTurnsCounter) + " counter")
-        time.sleep(2)
+
+        time.sleep(1)
 
     else:
         displayText.set("Primer movimiento es del CPU\n¡¡Cuidado!!\n")
+
         disableButtons(attackButtons)
         powerUpButton.config(state=DISABLED)
+
         FightWindow.update()
-        time.sleep(2)
+
+        time.sleep(1)
+
         if randomAttack < 3:
             UseAbility(cpu,player,cpuAttacksNames[randomAttack])
         else:
             activatePowerUp(cpu)
+
         FightWindow.update()
+
         updatePowerUp(cpu)
+
         time.sleep(2)
-    print("ya fue primer turno")
+
     powerUpButton.config(state=DISABLED)
-    # Turns(changeTurn,Ac)
-    life = 25
-    life2 = 25
-    #primer turno fue el del jugador, sigue el cpu
+ 
     while (player.HP > 0 and cpu.HP > 0):
         if cpu.isPowerUpAvailable:
             randomAttack = random.randint(0,3)
@@ -486,13 +418,10 @@ def StartFight(player,cpu):
             changeTurn.set(not changeTurn.get()) 
 
             displayText.set("Turno del CPU...")
-            print("turno de cpu")   
-            disableButtons(attackButtons)
-            powerUpButton.config(state=DISABLED)
 
             FightWindow.update()
             
-            time.sleep(2)
+            time.sleep(1)
 
             if randomAttack < 3:
                 UseAbility(cpu,player,cpuAttacksNames[randomAttack])
@@ -509,55 +438,139 @@ def StartFight(player,cpu):
         else:
             displayText.set("¡¡¡Tu turno!!!")
 
-            print("turno de jugador")
-
             enableButtons(attackButtons)
             if (player.isPowerUpAvailable):
                 powerUpButton.config(state=NORMAL)
 
-            FightWindow.wait_variable(changeTurn) #Esto al cambiar esto significa que el prota ataca
+            FightWindow.wait_variable(changeTurn)
             FightWindow.update()
-
-            print(str(player.powerUpTurnsCounter) + " counter")
 
             updatePowerUp(player)
 
-            print(str(player.powerUpTurnsCounter) + " counter")
-            time.sleep(2)
+            time.sleep(1)
     
-    print("se termino")
-    '''
     winner = True if cpu.HP <= 0 else False
-    historyMode =True
-    if historyMode:
+
+    player.HP = 25
+    cpu.HP = 25
+
+    if isHistoryMode:
         if winner:
-            pass
+            ms.showinfo(message="¡Muy bien! Ganaste",title="Combate finalizado")
+            actualLevel += 1
+
+            if len(loadedData[1]) == 1:
+                loadedData[1].append(player.name)
+                loadedData[1].append(actualLevel)
+                saveData(loadedData,usernamePath)
+
+            goToNextLevel(player,actualLevel,isHistoryMode)
         else:
-            pass
-        OpenCharacterSelectionWindow()
+            loseInHistoryMode(player,actualLevel,isHistoryMode,False)
     else:
         if winner:
-            pass
+            ms.showinfo(message="¡Eres imparable! regresarás a seleccionar personajes",title="Combate finalizado")
+            OpenCharacterSelectionWindow(False)
         else:
-            pass
-        OpenCharacterSelectionWindow()
-    '''
-            
+            loseInTrainingMode(False)
+
+def checkProgress(isHistoryMode):
+    if len(loadedData[1]) == 1:
+        OpenCharacterSelectionWindow(isHistoryMode)
+    else:
+        dictionary = {"Aquarder":0,"Electder":1,"Firesor":2,"Mousebug":3,"Splant":4,"Rockdog":5}
+        characters = initCharacters()
+        player = characters[dictionary[loadedData[1][1]]]
+
+        OpenFightWindow([player,None],int(loadedData[1][2]),isHistoryMode)
+        
+def startBattle(charactersToFight,actualLevel,isHistoryMode):
+    isReady = ms.askyesno(message="¿Estás listo?\nComenzará un combate legendario",title="No hay vuelta atrás")
+    if isReady:
+        OpenFightWindow(charactersToFight,actualLevel,isHistoryMode)
+
+def activatePowerUp(character):
+    character.activatePowerUp()
+    displayText.set(character.name + " ha utilizado " + character.powerUpName +"\nQuedan 2 movimientos")
+    if character.isPlayer:
+        powerUpButton.config(state=DISABLED)
+        changeTurn.set(not changeTurn.get())
+        disableButtons(attackButtons)
+ 
+def updatePowerUp(character):
+    character.updatePowerUp()
+
+def loseInTrainingMode(isForClose):
+    if isForClose:
+        ms.showinfo(message="Regresarás a seleccionar personajes",title="Combate cancelado")
+    else:
+        ms.showinfo(message="Has perdido, pero siempre puedes intentarlo de nuevo\nRegresarás a seleccionar personajes",title="Combate finalizado")
+
+    OpenCharacterSelectionWindow(False)
+
+def loseInHistoryMode(player,actualLevel,isHistoryMode,isForClose):
+    if isForClose:
+        willRetray = ms.askretrycancel(message="¿Deseas reintentar?", title="Diste click en el botón de cerrar pestaña")
+    else:
+        willRetray = ms.askretrycancel(message="¿Deseas reintentar?", title="Has perdido")
+
+    if willRetray:
+        goToNextLevel(player,actualLevel,isHistoryMode)
+    else:
+        willSaveMatch = ms.askyesno(message="¿Desea guardar la partida?\nDe no ser así, perderás tu proceso", title="Saldrás del combate")
+
+        if willSaveMatch:
+            if len(loadedData[1]) == 1: #poner en cuando ganes
+                loadedData[1].append(player.name)
+                loadedData[1].append(actualLevel)
+                saveData(loadedData,usernamePath)
+            else:
+                loadedData[1][1] = player.name
+                loadedData[1][2] = actualLevel
+                saveData(loadedData,usernamePath)
+        else:
+            if len(loadedData[1]) != 1: #si tiene ya progreso actual
+                loadedData[1].pop() #quitar level
+                loadedData[1].pop() #quitar personaje   
+            saveData(loadedData,usernamePath)
+        OpenGamemodeWindow()
+
 def UseAbility(attackingCharacter,attackedCharacter,attackName):
 
     damage = attackingCharacter.attack(attackedCharacter.type,attackName)
-    print(str(damage) + " damage con " + attackName)
+
     attackedCharacter.receiveDamage(damage)
 
     if attackingCharacter.isPlayer:
         changeTurn.set(not changeTurn.get())
-        for button in attackButtons:
-            button.config(state=DISABLED)
-        character2HP.set(character2HP.get()-damage)
+
+        disableButtons(attackButtons)
+        powerUpButton.config(state=DISABLED)
+
+        if cpuHP.get()-damage < 0:
+            cpuHP.set(0)
+        else:
+            cpuHP.set(cpuHP.get()-damage)
     else:
-        character1HP.set(character1HP.get()-damage)
+        if playerHP.get()-damage < 0:
+            playerHP.set(0)
+        else:
+            playerHP.set(playerHP.get()-damage)
 
     displayText.set(attackingCharacter.name + " ha utilizado " + attackName)
+
+def goToNextLevel(player,actualLevel,isHistoryMode):
+    ClosePreviousWindow()
+    if actualLevel >= 6: #cantidad de personajes
+        ms.showinfo(message="¡¡¡FELICIDADES!!!\nHas superado todos los combates\nPuedes intentar completar otra aventura con otro personaje!!",title="GAME OVER")
+        ClosePreviousWindow()
+
+        if len(loadedData[1]) != 1: #si tiene ya progreso actual
+            loadedData[1].pop() #quitar level
+            loadedData[1].pop() #quitar personaje
+        saveData(loadedData,usernamePath)
+    else:
+        OpenFightWindow([player,None],actualLevel,isHistoryMode)
 
 def disableButtons(buttons):
     for button in buttons:
@@ -586,15 +599,22 @@ def RegisterValidation(UsernameTextBox,PasswordTextBox,RePasswordTextBox):
         ms.showinfo(message="Las contraseñas no coinciden",title="Contraseña inválida")
         return
 
-    datos=[["Contraseña","Personaje","Nivel","HP", "HP enemigo", "Turno"]]
+    datos=[["Contraseña","Personaje","Nivel"]]
     dbName = UsernameTextBox.get() + ".csv"
-    datos.append([PasswordTextBox.get(),0,0,0,0,False])
+    datos.append([PasswordTextBox.get()])
+    
     archivo=open(dbName,"w")
     with archivo:
         escritor=csv.writer(archivo)
         escritor.writerows(datos)
+
+    global loadedData
+    loadedData = datos
+
+    OpenGamemodeWindow()
     
 def LoginValidation(username, password):
+    global usernamePath
     usernamePath = username.get() + ".csv"
     Data = [[]]
 
@@ -623,83 +643,27 @@ def LoginValidation(username, password):
     
     #Comprobar contraseña
     if Data[2][0] == password.get():
-        OpenCharacterSelectionWindow()
+        openData(path=usernamePath)
+        OpenGamemodeWindow()
     else:
         ms.showerror(message="Contraseña incorrecta",title="No fue posible iniciar sesión")
         password.delete(0,END)
-                
-def OpenInitialWindow():
+
+def openData(path):
+    global loadedData
+    loadedData = []
+    with open(path, 'r') as file:
+        reader = csv.reader(file, delimiter=",", quotechar=",", quoting=csv.QUOTE_MINIMAL)
+        for row in reader:
+            if len(row) > 0:
+                loadedData.append(row)
+    saveData(loadedData,path)
+
+def saveData(data, path):
+    with open(path, "w") as fil:
+        writer = csv.writer(fil)
+        writer.writerows(data)
+    # print("File stored with success")
 
 
-    # --- window
-    global InitialWindow
-    InitialWindow = Tk() # instanciar
-    InitialWindow.geometry("400x300") # alterar el tamanio
-    InitialWindow.title("Juego Loco 3mil8mil") # editar el titulo
-    InitialWindow.config(bg="#C1B9B9") # editar el background
-    InitialWindow.iconbitmap("VamohIcon.ico") # editar el icono de la aplicacion
-
-
-    # button
-    LoginButton = Button(InitialWindow, text="Iniciar sesión", command=OpenLoginWindow) #cambiar a openloginwindow
-    LoginButton.place(relx=0.5,rely=0.4,anchor=CENTER)
-
-
-    # button
-    RegisterButton = Button(InitialWindow, text="Usuario nuevo", command=OpenRegisterWindow)
-    RegisterButton.place(relx=0.5,rely=0.6,anchor=CENTER)
-
-    # label
-    GameTitle = Label(InitialWindow, text="Juego Loco 3mil8mil")
-    GameTitle.place(relx=0.5,rely=0.1,anchor=CENTER)
-    GameTitle.config(bg="#C1B9B9")
-
-    InitialWindow.mainloop()
-
-def SelectCharacter(cuantityList, index):
-
-    cuantityList[index] += 1
-
-    charactersToFight.append(characters[index])
-
-    if sum(cuantityList) >= 2:
-        for button in characterButtons:
-            button.config(state=DISABLED)
-        ClearButton.config(state=NORMAL)
-
-
-    if cuantityList[index] != 1 or sum(cuantityList) > 1:
-        characterButtons[index].config(bg="#2596be")
-    else:
-        characterButtons[index].config(bg="#873e23")
-
-def ClearSelections(cuantityList):
-    for button in characterButtons:
-        button.config(state=NORMAL,bg="SystemButtonFace")
-
-    for i in range(len(cuantityList)):
-        cuantityList[i] = 0
-
-    ClearButton.config(state=DISABLED)
-    charactersToFight.clear()
-
-
-OpenFightWindow()
-
-# Bindear botno a tecla y detectar cierre de ventana
-'''
-#hay que ver cómo guardamos el usuario actualmente en la sesión. tal vez un arreglo global con toda la info, 
-#misma que usaría para guardar la partida en caso de que se cierre la ventana
-boton.bind("<Return>", saludar_enter)
-
-#Llamar funcion al cerrar ventana, ayudara para guardar partidas
-import tkinter as tk
-from tkinter import messagebox
-
-root = tk.Tk()
-def on_closing():
-if messagebox.askokcancel("Quit", "Do you want to quit?"):
-    root.destroy()
-
-root.protocol("WM_DELETE_WINDOW", on_closing)
-'''
+OpenInitialWindow()

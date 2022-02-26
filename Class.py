@@ -17,14 +17,9 @@ class Character:
     def attack(self,enemyType,attackName):
         # Si el ataque es el primero
         attackNames = list(self.attacks)
-        print(enemyType)
-        print(attackName)
-        print(attackNames[0])
 
         if attackName == attackNames[0]:
-            print("wtf bro")
             return self.checkDamageByEnemyType(enemyType) + (2 if self.isPowerUpActive else 0)
-            #damage = checkAdvantage(type) + powerUpDamage()
         else:
         # Si no, solo se hace el daño
             return self.attacks[attackName]
@@ -36,7 +31,6 @@ class Character:
         #ventaja
         attackName = list(self.attacks)[0]
         attackDamage = self.attacks[attackName]
-        print("si entro")
         if self.hasAdvantage(enemyType):
             return attackDamage[1]
         #desventaja
@@ -70,14 +64,8 @@ class Character:
             self.isPowerUpActive = False
 
         elif self.powerUpTurnsCounter == 0:
-            # self.powerUpTurnsCounter = 3
             self.isPowerUpAvailable = True
                 
-
-
-
-        
-
 def initCharacters():
     characters = [
     Character("Aquarder",25,"Agua",False,"images/aquarder.png",{"Aqua-jet":[3,5,2,5,7,4],"Cola férrea":2,"Cabezazo":2},"Lluvia",["Roca","Fuego"],["Eléctrico","Planta"],["Agua","Escarabajo"]),
@@ -88,7 +76,3 @@ def initCharacters():
     Character("Rockdog",25,"Roca",False,"images/rockdog.png",{"Roca afilado":[3,5,2,5,7,4],"Velocidad":2,"Cola ferrea":2},"Campo rocoso",["Fuego","Eléctrico"],["Agua","Planta"],["Roca","Escarabajo"])
     ]
     return characters
-
-
-# directory = {"Roca afilado":[3,5,2,5,7,4],"Velocidad":2,"Cola ferrea":2,"Campo rocoso":None}
-# print(["hola", "mamas"])
